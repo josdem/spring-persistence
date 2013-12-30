@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>$title</title>
+  
+  <link rel="stylesheet" href="${resource('/css/bootstrap.css')}">
+  <link rel="stylesheet" href="${resource('/css/font-awesome.min.css')}">
+  <link rel="stylesheet" href="${resource('/css/starter-template.css')}">
+  <link rel="stylesheet" href="${resource('/css/docs.css')}">
+
+</head>
+<body>
+
+  <header class="navbar navbar-inverse navbar-fixed-top bs-docs-nav" role="banner">
+    <div class="container">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="http://makingdevs.com">
+          <img src="${resource('/img/logo.png')}" alt="· MakingDevs ·">
+        </a>
+      </div>
+      <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li>
+            <a href="$tocPath">Table of Contents</a>
+          </li>
+        </ul>
+      </div><!--/.nav-collapse -->
+    </div>    
+  </header>
+
+  <div class="bs-header" id="content">
+      <div class="container">
+        <h1>Diseño de aplicaciones con Spring 3/4</h1>
+        <div style="height:70px"> 
+          <p id="p1">Nuestro compromiso es ofrecerte una experiencia que realce las habilidades de aquellas personas que se dedican a desarrollar software.</p>
+          <p id="p2">Sabemos que la responsabilidad de crear aplicaciones debe de estar sustentada con habilidades que permitan garantizar la calidad de las mismas.</p>
+          <p id="p3">“Making best code, through better developers”</p>
+        </div>
+      </div>
+   </div><!--div del header fixed-->
+
+  <div class="container">
+    <div class="row">
+      $content
+    </div>
+  </div><!-- /.container -->
+
+  <footer id="footer" class="footer">
+    <div class="container">
+      <p class="credit text-muted">Powered by <a href="http://makingdevs.com">MakingDevs.com</a>.</p>
+    </div>
+  </footer>
+
+  <script src="${resource('/js/jquery-1.10.2.min.js')}"></script>
+  <script src="${resource('/js/bootstrap.js')}"></script>
+  <script type="text/javascript" src="${resource('/js/shCore.js')}"></script>
+  <script type="text/javascript" src="${resource('/js/shBrushJScript.js')}"></script>
+  <script type="text/javascript" src="${resource('/js/shBrushGroovy.js')}"></script>
+  <script type="text/javascript" src="${resource('/js/shBrushCss.js')}"></script>
+  <script type="text/javascript" src="${resource('/js/shBrushJava.js')}"></script>
+  <script type="text/javascript" src="${resource('/js/shBrushPlain.js')}"></script>
+  <script type="text/javascript" src="${resource('/js/shBrushSql.js')}"></script>
+  <script type="text/javascript" src="${resource('/js/shBrushXml.js')}"></script>
+  <script type="text/javascript" src="${resource('/js/shBrushBash.js')}"></script>
+  <script type="text/javascript" src="${resource('/js/shBrushPython.js')}"></script>
+  <link type="text/css" rel="stylesheet" href="${resource('/css/shCoreDefault.css')}"/>
+  <script type="text/javascript">SyntaxHighlighter.all();</script>  
+  <script src="js/funciones.js"></script>
+</body>
+</html>
