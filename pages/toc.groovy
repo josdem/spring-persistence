@@ -15,7 +15,7 @@
 
 "configuration.html"(title:"Configuración básica para persistencia"){
   "configuration.html"(title:"La base de datos y el namespace")
-  "configuration.html"(title:"Control de las conexiones(*DataSource)")
+  "configuration.html"(title:"Control de las conexiones(El *DataSource)")
   "configuration.html"(title:"El DAO genérico")
   "configuration.html"(title:"Pruebas de integración")
 }
@@ -34,7 +34,7 @@
 }
 
 "transactions.html"(title:"Manejo de transacciones"){
-  "transactions.html"(title:"Conceptos esenci")
+  "transactions.html"(title:"Conceptos esenciales")
   "transactions.html"(title:"Manejadores de transacciones")
   "transactions.html"(title:"Programando transacciones")
   "transactions.html"(title:"Transacciones declarativas")

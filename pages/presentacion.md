@@ -31,7 +31,13 @@ __“Making best code, through better developers”__
 
 <h2 id="2">Objetivo del entrenamiento</h2>
 
-* 
+* Conocer los elementos de acceso a datos con Spring
+* Simplificar el uso de JDBC con Spring
+* Integrar un ORM(Hibernate) al contenedor de Spring
+* Profundizar en el manejo de transacciones
+* Conocer las herramientas para refactorizar una base de datos
+* Crear una capa de persistencia sustentable para ser llamada desde cualquier componente
+* Fomentar las buenas prácticas en el manejo de una fuente de datos relacional
 
 <h2 id="3">Consideraciones</h2>
 
@@ -49,12 +55,10 @@ Es importante contar con los siguientes elementos instalados:
 * Necesarios:
     * Tener el JDK perfectamente instalado con la variable JAVA_HOME bien definida
     * Tener instalado el SpringSource Tool Suite
-    * Tener un navegador con herramientas de desarrollo
-        * Chrome
-        * Firefox
-    * Tener Maven 2 bien instalado
+    * Gradle como herramienta de construcción
 * Opcionales:
     * Algún otro IDE
         * Netbeans
         * IntelliJ IDEA
     * Un editor de textos
+    * Tener Maven 2 bien instalado
