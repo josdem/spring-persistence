@@ -242,15 +242,73 @@ public interface TaskDao extends GenericDao<Task, Long> {
 
 <div id="3"></div>
 
-## Manejo de excepciones y el uso de Template con Spring
+## Manejo de excepciones
 
+Si has escrito código con la API de JDBC sin Spring, entonces debés de conocer que no puedes hacer nada sin cachar siempre `SQLException`. El significado de la excepción es que algo malo paso cuando se intentó acceder a la base de datos, pero el detalle de la excepción en la mayoría de los casos no dice mucho que pueda ayudar.
+
+Algunos problemas comúnes que causan que se arroje `SQLException` son:
+
+* La aplicación no es capaz de conectarse a la base de datos.
+* El query que se esta ejecutando tiene errores en su sintacis.
+* Las tablas y las columnas referidas en la búsqueda no existen.
+* Un intento fue hecho al insertar o actualizar valores que violan las restricciones de la base de datos.
+
+<blockquote>
+  <p>¿Cómo debe ser tratada <code>SQLException</code> cuando se atrape? Realmente, si falla la base de datos no podemos hacer nada...</p>
+</blockquote>
+
+Y si no podemos hacer nada entonces **¿por qué debemos tratarla?** Incluso si desearamos tratarla tenemos que profundizar en ella para obtener la verdadera causa del error. Algunos frameworks de persistencia ofrecen una jerarquía de excepciones, cada una de ellas apuntando a un problema diferente, esto hace crear bloques `try/catch` para excepciones que se pueden esperar de antemano. El problema con ello es que cada jerarquía de excepciones es referente exclusiva al framework.
+
+Spring provee **una jerarquía de excepciones** también conocida como **una plataforma agnóstica de excepciones para la persistencia con Spring** que resuelve los problemas de falta de claridad en los errores y las jerarquías de otros frameworks, incluso la de JDBC.
+
+![Alt dao](/img/data_access_exception.jpg)
+
+<div class="bs-callout bs-callout-info">
+<h4><i class="icon-coffee"></i> Información de utilidad</h4>
+  <p>
+    Te recomendamos que explores <a href="http://docs.spring.io/spring/docs/4.0.x/javadoc-api/org/springframework/dao/DataAccessException.html">la documentación de DataAccessException</a>, pues hay actualizaciones al respecto de la jerarquía de excepciones y es muy bueno tenerlo como referencia.
+  </a>
+  </p>
+</div>
 
 <div id="4"></div>
 
-## Soporte a DAO
+## Uso de templates con Spring
 
+<blockquote>
+  <p>Un método de un template define el esqueleto de un proceso.</p>
+</blockquote>
+
+El proceso por si mísmo es fijo, nunca cambia. Algunos pasos del proceso son fijos también, algunos pasos pasan cada vez que se ejecuta un proceso. En algunos puntos, el proceso delega el trabajo a una subclase para llenarlo con algunas implementaciones con detalles muy específicos, es decir, es la parte variable del proceso. 
+
+En términos de software, un método de un template delega porciones específicas de una implementación del proceso a una interface. Diferentes implementaciones de esta interface definen implementaciones específicas de esta porción del proceso. Este es el mismo patrón que Spring aplica al acceso a datos. Sin importar la tecnología ciertos pasos del acceso a datos son requeridos. Por ejemplo, siempre necesitamos obtener una conexión al DataSource y liberar recursos cuando ha terminado, pero cada método de acceso a datos que escribimos es ligeramente doferente. Buscamos por diferentes objetos y actualizamos en diferentes maneras.
+
+Spring separa las partes fijas y las variables del proceso de acceso a datos en dos distintas clases: _templates_ y _callbacks_. Los _templates_ administran la parte fija del proceso mientras que el código de acceso de datos personalizados se maneja en los _callbacks_.
+
+En un template del DAO:
+
+* Se preparan los recursos
+* Se comienza la transacción
+* ....
+* Se hace commit/rollback de la transacción
+* Se cierran recursos y se manejan errores
+
+En un callback del DAO:
+
+* ....
+* Se ejecuta una transacción
+* Se regresan los datos y se tratan
+* ...
+
+### Templates de acceso a datos
+
+
+
+### Wiring del uso de template
 
 <div id="5"></div>
+
+## Soporte a DAO
 
 ## ¿ActiveRecord?
 
