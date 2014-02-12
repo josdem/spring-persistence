@@ -128,9 +128,121 @@ El DAO implementa el mecanismo de acceso requerido para trabajar con el DataSour
 
 Si planteamos nuestros objetos de acceso a datos de esta forma, entonces los objetos de servicio podrán acceder a las interfaces de las declaraciones de los DAO's para manipular la estructura de la base de datos y los podremos desacoplar en dado caso de que necesitemos algún mock o cambio de implementación. Además, lo hace más sencillo de probar pues podemos definir _pruebas de unidad_ reales en base a las llamadas que se deberían ejecutar en los colaboradores.
 
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> GenericDao.java</h4>
+    <script type="syntaxhighlighter" class="brush: java"><![CDATA[
+package com.makingdevs.dao;
+
+import java.io.Serializable;
+import java.util.List;
+
+/** The Generic DAO for all persistence interfaces */
+public interface GenericDao<T, PK extends Serializable> {
+
+  /** Persist the newInstance object into database */
+  PK create(T newInstance);
+
+  /**
+   * Retrieve an object that was previously persisted to the database using the
+   * indicated id as primary key
+   */
+  T read(PK id);
+
+  /** Save changes made to a persistent object. */
+  void update(T transientObject);
+
+  /** Remove an object from persistent storage in the database */
+  void delete(T persistentObject);
+
+  /** Retrieves a list of instances */
+  List<T> findAll();
+
+  /** Count the current instances persisted */
+  int countAll();
+}
+    ]]></script>
+  </div>
+</div>
+
+El patrón de diseño DAO debe ser bien conocido por cualquier desarrollador Java Empresarial, sin embargo, debemos clarificar algunas cosas para la implmenetación:
+
+* Todos los accesos de la base de datos en el sistema son hechos a través de los DAO's para mantener la encapsulación.
+* Cada instancia del DAO es responsable por un objeto de dominio primario o entidad.
+* Si un objeto de dominio tiene un ciclo de vida independiente, debería tener su propio DAO.
+* El DAO es responsable de la creación, lectura(por llave primaria), actualizaciones y el borrado de un objeto de dominio.(CRUD)
+* El DAO quizá permita búsquedas basados en criterios distintos a la llave primaria. Podemos referirnos a esos métodos como _finder methods_ o _finders_. El valor que se regresa de un _finder_ es normalmente una colección de objetos de dominio de los cuales el DAO es responsable.
+* El DAO **no** es responsable por el manejo de transacciones, sesiones o conexiones, esto últimos son manejados fuera del DAO para mantener la flexibilidad.
+* Evitamos en la medida de lo posible el uso de _casts_ explícito.
+* Aún aquí, es válido usar principios de POO como herencia y polimorfismo.
+
+<div class="row">
+  <div class="col-md-3">
+    <h4><i class="icon-file"></i> UserDao.java</h4>
+    <script type="syntaxhighlighter" class="brush: java"><![CDATA[
+package com.makingdevs.dao;
+
+import com.makingdevs.model.User;
+
+public interface UserDao extends GenericDao<User, Long> {
+  User findByUsername(String username);
+  // So many methods as you want...
+}
+    ]]></script>
+  </div>
+  <div class="col-md-3">
+    <h4><i class="icon-file"></i> ProjectDao.java</h4>
+    <script type="syntaxhighlighter" class="brush: java"><![CDATA[
+package com.makingdevs.dao;
+
+import com.makingdevs.model.Project;
+
+public interface ProjectDao extends GenericDao<Project, Long> {
+  Project findByCodename(String codename);
+}
+    ]]></script>
+  </div>
+  <div class="col-md-3">
+    <h4><i class="icon-file"></i> GenericDao.java</h4>
+    <script type="syntaxhighlighter" class="brush: java"><![CDATA[
+package com.makingdevs.dao;
+
+import java.util.List;
+
+import com.makingdevs.model.Project;
+import com.makingdevs.model.UserStory;
+
+public interface UserStoryDao extends GenericDao<UserStory, Long> {
+  List<UserStory> findAllByEffortBetween(Integer lowValue, Integer maxValue);
+  List<UserStory> findAllByPriorityBetween(Integer lowValue, Integer maxValue);
+  List<UserStory> findAllByProject(Project project);
+}
+    ]]></script>
+  </div>
+  <div class="col-md-3">
+    <h4><i class="icon-file"></i> GenericDao.java</h4>
+    <script type="syntaxhighlighter" class="brush: java"><![CDATA[
+package com.makingdevs.dao;
+
+import java.util.List;
+
+import com.makingdevs.model.Task;
+import com.makingdevs.model.TaskStatus;
+import com.makingdevs.model.User;
+import com.makingdevs.model.UserStory;
+
+public interface TaskDao extends GenericDao<Task, Long> {
+  List<Task> findAllByDescriptionLike(String description);
+  List<Task> findAllByUserStoryAndStatusEquals(UserStory userStory, TaskStatus taskStatus);
+  List<Task> findAllByUser(User user);
+}
+    ]]></script>
+  </div>
+</div>
+
 <div id="3"></div>
 
-## Manejo de excepciones 
+## Manejo de excepciones y el uso de Template con Spring
 
 
 <div id="4"></div>
