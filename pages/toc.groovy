@@ -17,7 +17,7 @@
 
 "jdbctemplate.html"(title:"JdbcTemplate y DAO Support"){
   "jdbctemplate.html"(title:"Uso de templates con Spring")
-  "jdbctemplate.html"(title:"Inicio rápido con el SimpleJdbcTemplate")
+  "jdbctemplate.html"(title:"Usando el *JdbcTemplate")
   "jdbctemplate.html"(title:"El JdbcTemplate y los RowMappers")
   "jdbctemplate.html"(title:"Soporte a DAO's")
   "jdbctemplate.html"(title:"Creando DAO's con JdbcDaoSupport")

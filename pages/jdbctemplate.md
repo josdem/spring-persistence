@@ -45,6 +45,8 @@ Springframework viene con varios templates de acceso a datos, cada uno adecuado 
 * iBatis
     * `orm.ibatis.SqlMapClientTemplate`
 
+## Usando el *JdbcTemplate
+
 La clase `JdbcTemplate` es central en el paquete de JDBC. Maneja la creación y liberación de recursos, los cuales ayudan a evitar errores comúnes como el cerrado de las conexiones. 
 Actúa tareas básicas del flujo de JDBC como la creación de sentencias y su ejecución, dejando al código de la aplicación proveer el SQL y extraer los resultados.
 
@@ -170,7 +172,122 @@ public class UsingJdbcTemplateTests {
   </div>
 </div>
 
-<div class="alert alert-info">
-  <strong><i class="icon-terminal"></i> Aunque la clase <code>JdbcTemplate</code> es muy poderosa y podría usarse de forma independiente te recomendamos ampliamente que la uses con el soporte a DAO's que ofrece Spring.
+<div class="bs-callout bs-callout-info">
+<h4><i class="icon-coffee"></i> Información de utilidad</h4>
+  <p>
+    Te recomendamos explorar <a href="http://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/jdbc/core/JdbcTemplate.html">la documentación del JdbcTemplate</a> para que puedas determinar las diferencias entre los métodos execute y update.
+  </a>
+  </p>
 </div>
 
+Las instancias de `JdbcTemplate` son _threadsafe_ una vez que son configuradas. Esto es importante por que significa que podemos configurar una sola instancia e inyectar la refencia compartida de forma segura referenciandola en múltiples componentes(DAO).
+
+El `JdbcTemplate` es _stateful_, en lo que mantiene la referencia al `DataSource`, pero este estado no es _conversacional_.
+
+### `NamedParameterJdbcTemplate`
+
+La clase `NamedParameterJdbcTemplate` agrega el soporte para la programación de sentencias JDBC usando parámetros nombrados, en lugar de los marcadores _"?"_. Lo que hace es rodear al `JdbcTemplate` para después delegar el trabajo.
+
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> NamedJdbcTemplateAppCtx.xml</h4>
+    <script type="syntaxhighlighter" class="brush: xml"><![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+    <constructor-arg ref="dataSource"/>
+  </bean>
+
+</beans>
+    ]]></script>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> UsingNamedJdbcTemplateTests.java</h4>
+    <script type="syntaxhighlighter" class="brush: java"><![CDATA[
+package com.makingdevs.practica2;
+
+import static org.junit.Assert.assertEquals;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.FixMethodOrder;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations={"NamedJdbcTemplateAppCtx.xml","../practica1/DataSourceWithNamespace.xml"})
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+public class UsingNamedJdbcTemplateTests {
+
+  @Autowired
+  NamedParameterJdbcTemplate jdbcTemplate;
+
+  @Test
+  public void test1CountWithJdbcTemplate() {
+    // Easy way!
+    Map<String,Object> namedParameters = new HashMap<String,Object>();
+    int rowCount = jdbcTemplate.queryForObject("SELECT count(*) FROM user", namedParameters, Integer.class);
+    assertEquals(7, rowCount);
+  }
+
+  @Test
+  public void test2CountBindingVariableWithJdbcTemplate() {
+    String sql = "SELECT count(*) FROM user WHERE username = :username";
+    // Using Spring parameters
+    SqlParameterSource namedParameters = new MapSqlParameterSource("username", "makingdevs");
+    int rowCount = jdbcTemplate.queryForObject(sql, namedParameters, Integer.class);
+    assertEquals(1, rowCount);
+  }
+
+  @Test
+  public void test3QueryStringWithJdbcTemplate() {
+    String sql = "SELECT code_name FROM project WHERE id = :id";
+    Map<String, String> namedParameters = Collections.singletonMap("id", "4");
+    String projectName = jdbcTemplate.queryForObject(sql, namedParameters, String.class);
+    assertEquals("AGILE-TASKBOARD", projectName);
+  }
+
+}
+    ]]></script>
+  </div>
+</div>
+
+
+<div class="alert alert-info">
+  <strong><i class="icon-terminal"></i></strong> Aunque la clase <code>JdbcTemplate</code> es muy poderosa y podría usarse de forma independiente, te recomendamos ampliamente que la uses con el soporte a DAO's que ofrece Spring.
+</div>
+
+## El JdbcTemplate y los RowMappers
+
+## Soporte a DAO's
+
+## Creando DAO's con JdbcDaoSupport
+
+------
+
+### Enfoques de acceso a datos disponibles.
+
+Podemos escoger varios enfoques para el acceso a datos con JDBC con `JdbcTemplate`. Una vez que comenzamos a usarlos, podemos mezclarlos para lograr funcionalidad más específica; estos son:
+
+* `JdbcTemplate` - Es el enfoque más popular, el de nivel más bajo.
+* `NamedParameterJdbcTemplate` - Rodea un `JdbcTemplate` para proveer parámetros nombrados en lugar de los marcadores "?". Este enfoque provee de mejro documentación del uso del template cuando tenemos varios parámetros por aplicar.
+* `SimpleJdbcInsert` y `SimpleJdbcCall` - Optimizan los metadatos de la base de datos para límitar la cantidad de configuración necesaria. Este enfoque simplifica el código a escribir de tal manera que sólo hay que proveer el nombre de la tabla o procedimiento, y proveer un mapa de parámteros coincidiendo los nombres de las columnas. Esto sólo funciona si la base de datos provee los metadatos adecuados, en caso contrario, tendremos que ponerlos nosotros mismo en configuración.
+* Objetos de RDBMS
+    * `MappingSqlQuery`
+    * `SqlUpdate`
+    * `StoredProcedure`
