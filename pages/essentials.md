@@ -302,13 +302,171 @@ En un callback del DAO:
 
 ### Templates de acceso a datos
 
+Springframework viene con varios templates de acceos a datos, cada uno adecuado para un mecanismo de persistencia diferente. Los más comúnes precedidos por el nombre de paquete `org.springframework`:
+
+* JDBC
+    * `jdbc.core.JdbcTemplate`
+    * `jdbc.core.namedparam.NameParameterJdbcTemplate`
+    * `jdbc.core.simple.SimpleJdbcTemplate`
+* Hibernate
+    * `orm.hibernate.HibernateTemplate`
+    * `orm.hibernate3.HibernateTemplate`
+* JPA
+    * `orm.jpa.JpaTemplate`
+* iBatis
+    * `orm.ibatis.SqlMapClientTemplate`
+
+<blockquote>
+  <p>Lo único que necesita un <code>JdbcTemplate</code> es un <code>DataSource</code>, y tiene varios métodos de conveniencia que ayudan a realizar operaciones de base de datos de una forma muy simple.</p>
+</blockquote>
+
+## La base de datos y el namespace
+
+El paquete `org.springframework.jdbc.datasource.embedded` provee del soporte embebido de bases de datos con motores Java. Soporta [HSQL](http://www.hsqldb.org/), [H2](http://www.h2database.com/) y [Derby](http://db.apache.org/derby) de forma nativa. Aunque se puede extender el API para conectar nuevos tipos de bases de datos e implementaciones de `DataSource`.
+
+<div class="bs-callout bs-callout-info">
+<h4><i class="icon-coffee"></i> Información de utilidad</h4>
+  <p>
+    Una bases de datos embebida es útil durante la fase de desarrollo de un proyecto por que es de naturaleza ligera. Los beneficios incluyen una fácil configuración, tiempo de inicio rápido, capaz de probarse, y la habilidad de evolucionar el SQL(estructira) durante el desarrollo.
+  </a>
+  </p>
+</div>
+
+Para embeber la base de datos necesitamos crear algunos scripts que nos permitan definir la estructura(DDL) y después asignarlos a nuestro bean de Spring.
+
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> DataSourceWithNamespace.xml</h4>
+    <script type="syntaxhighlighter" class="brush: xml;"><![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+  xmlns:jee="http://www.springframework.org/schema/jee"
+  xmlns:util="http://www.springframework.org/schema/util"
+  xsi:schemaLocation="http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-4.0.xsd
+    http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.0.xsd
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd">
 
 
-### Wiring del uso de template
+  <jdbc:embedded-database type="H2" id="dataSource">
+    <jdbc:script location="classpath:/com/makingdevs/scripts/user.sql"/>
+    <jdbc:script location="classpath:/com/makingdevs/scripts/project.sql"/>
+    <jdbc:script location="classpath:/com/makingdevs/scripts/user_story.sql"/>
+    <jdbc:script location="classpath:/com/makingdevs/scripts/task.sql"/>
+    <jdbc:script location="classpath:/com/makingdevs/scripts/constraints.sql"/>
+  </jdbc:embedded-database>
+
+</beans>
+    ]]></script>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> DeclaringDataSourceTests.java</h4>
+    <script type="syntaxhighlighter" class="brush: java;"><![CDATA[
+package com.makingdevs.practica1;
+
+import java.sql.SQLException;
+
+import javax.sql.DataSource;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.util.Assert;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "DataSourceWithNamespace.xml" })
+public class DeclaringDataSourceTests {
+  
+  @Autowired
+  DataSource dataSource;
+
+  @Test
+  public void test() throws SQLException {
+    Assert.notNull(dataSource);
+    Assert.notNull(dataSource.getConnection());
+  }
+
+}
+    ]]></script>
+  </div>
+</div>
+
+Aunque potencialmente, se podría utilizar cualquier manejador de base de datos que provea de un Driver de Conexión el cual permitá manipularla.
 
 <div id="5"></div>
 
-## Soporte a DAO
+## Control de las conexiones(El *DataSource)
 
-## ¿ActiveRecord?
+Independientemente de cual forma de soporte en Spring uses, necesitarás configurar una referencia a un `DataSource`. Spring ofrece varias opciones para configurar beans DataSource en una aplicación:
+
+* DataSources que son definidos por el driver
+* DataSources que son buscados por un recurso JNDI
+* DataSources que son pool de conexiones
+
+Adicionalmente, Spring ofrece dos tipos de clases para DataSource del paquete `org.springframework.jdbc.datasource`:
+
+* [`DriverManagerDataSource`](http://docs.spring.io/spring/docs/4.0.0.RELEASE/javadoc-api/org/springframework/jdbc/datasource/DriverManagerDataSource.html) Regresa una nueva conexión cada vez que una conexión es solicitada.
+* [`SingleConnectionDataSource`](http://docs.spring.io/spring/docs/4.0.0.RELEASE/javadoc-api/org/springframework/jdbc/datasource/SingleConnectionDataSource.html) Regresa la misma conexión cada veza que la conexión es solicitada.
+
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> DriverManagerDataSource</h4>
+    <script type="syntaxhighlighter" class="brush: xml;"><![CDATA[
+<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+  <property name="driverClassName" value="org.hsqldb.jdbcDriver" />
+  <property name="url" value="jdbc:hsqldb:hsql://localhost/spitter/spitter" />
+  <property name="username" value="sa" />
+  <property name="password" value="" />
+</bean>
+    ]]></script>
+  </div>
+</div>
+
+### Uso de Commons DBCP y/o C3P0
+
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> DriverManagerDataSource</h4>
+    <script type="syntaxhighlighter" class="brush: xml;"><![CDATA[
+<util:properties id="dbProperties" location="classpath:/com/makingdevs/practica1/db.properties" />
+
+<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+  <property name="username" value="#{dbProperties['mainDataSource.username']}"/>
+  <property name="password" value="#{dbProperties['mainDataSource.password']}"/>
+  <property name="url" value="#{dbProperties['mainDataSource.url']}"/>
+  <property name="driverClassName" value="#{dbProperties['mainDataSource.driverClassName']}"/>
+</bean>
+    ]]></script>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> DriverManagerDataSource</h4>
+    <script type="syntaxhighlighter" class="brush: xml;"><![CDATA[
+<util:properties id="dbProperties" location="classpath:/com/makingdevs/practica1/db.properties" />
+
+<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+  <property name="user" value="#{dbProperties['mainDataSource.username']}"/>
+  <property name="password" value="#{dbProperties['mainDataSource.password']}"/>
+  <property name="jdbcUrl" value="#{dbProperties['mainDataSource.url']}"/>
+  <property name="driverClass" value="#{dbProperties['mainDataSource.driverClassName']}"/>
+</bean>
+    ]]></script>
+  </div>
+</div>
+
+Con Spring podemos configurar una referencia a un DataSource que esta dentro de un JNDI y alambrarlo a cualquier otra clase que lo necesite. Con el namespace `jee` tenemos disponible el tag `<jee:jndi-lookup>` que ayuda a buscarlo e inicializarlo.
+
+```
+<jee:jndi-lookup id="dataSource" jndi-name="/jdbc/MakingDevsDS" resource-ref="true" />
+```
+
+**Nota:** El uso de `resource-ref="true"` antepone al nombre JNDI `java:comp/env/`.
+
+## Modelado de las operaciones como objetos Java(Caso de estudio)
 
