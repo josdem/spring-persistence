@@ -15,7 +15,8 @@
   "essentials.html"(title:"Modelado de las operaciones como objetos Java(Caso de estudio)")
 }
 
-"jdbctemplate.html"(title:"Uso del JdbcTemplate"){
+"jdbctemplate.html"(title:"JdbcTemplate y DAO Support"){
+  "jdbctemplate.html"(title:"Uso de templates con Spring")
   "jdbctemplate.html"(title:"Inicio rápido con el SimpleJdbcTemplate")
   "jdbctemplate.html"(title:"El JdbcTemplate y los RowMappers")
   "jdbctemplate.html"(title:"Soporte a DAO's")
