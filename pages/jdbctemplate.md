@@ -262,17 +262,97 @@ public class UsingNamedJdbcTemplateTests {
     assertEquals("AGILE-TASKBOARD", projectName);
   }
 
+  // Hey!!! check the BeanPropertySqlParameterSource class
+
 }
     ]]></script>
   </div>
 </div>
-
 
 <div class="alert alert-info">
   <strong><i class="icon-terminal"></i></strong> Aunque la clase <code>JdbcTemplate</code> es muy poderosa y podría usarse de forma independiente, te recomendamos ampliamente que la uses con el soporte a DAO's que ofrece Spring.
 </div>
 
 ## El JdbcTemplate y los RowMappers
+
+La interfaz `RowMapper` es usada por el `JdbcTemplate` para mapear las filas de un `ResultSet` fila por fila. Las implementaciones de esta interfaz realizan el trabajo actual de mapear cada fila en un objeto resultado, pero no necesitan preocuparse acerca del manejo de excepiones. Todo lo que sea `SQLException` será cachao y manejado por `JdbcTemplate`.
+
+Los RowMappers son típicamente _stateless_ y por lo tanto pueden reusarse, son ideales para implementar lógica de mapeo por fila en un solo lugar. 
+
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> ProjectMapper.java</h4>
+    <script type="syntaxhighlighter" class="brush: java"><![CDATA[
+package com.makingdevs.practica3;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import org.springframework.jdbc.core.RowMapper;
+
+import com.makingdevs.model.Project;
+
+public class ProjectMapper implements RowMapper<Project> {
+
+  @Override
+  public Project mapRow(ResultSet rs, int rowNum) throws SQLException {
+    Project project = new Project();
+    project.setId(rs.getLong("id"));
+    project.setName(rs.getString("name"));
+    project.setCodeName(rs.getString("code_name"));
+    project.setDescription(rs.getString("description"));
+    project.setDateCreated(rs.getDate("date_created"));
+    project.setLastUpdated(rs.getDate("last_updated"));
+    return project;
+  }
+
+}
+    ]]></script>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> NamedJdbcTemplateAppCtx.java</h4>
+    <script type="syntaxhighlighter" class="brush: java"><![CDATA[
+package com.makingdevs.practica3;
+
+import static org.junit.Assert.assertEquals;
+
+import java.util.List;
+
+import org.junit.FixMethodOrder;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import static org.springframework.util.Assert.*;
+
+import com.makingdevs.model.Project;
+import com.makingdevs.practica2.JdbcTemplateConfig;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = { JdbcTemplateConfig.class })
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+public class ProjectRowMapperTests {
+
+  @Autowired
+  JdbcTemplate jdbcTemplate;
+
+  @Test
+  public void testQueryWithMapper() {
+    String sql = "SELECT * FROM project";
+    List<Project> projects = jdbcTemplate.query(sql, new ProjectMapper());
+    assertEquals(projects.size(), 4);
+    for (Project p : projects) {
+      assertEquals(p.getClass(), Project.class);
+      isTrue(p.getId() > 0);
+    }
+  }
+}
+    ]]></script>
+  </div>
+</div>
 
 ## Soporte a DAO's
 
