@@ -10,20 +10,15 @@
   "essentials.html"(title:"Jerarquía de excepciones")
   "essentials.html"(title:"Acceso a datos por Templates")
   "essentials.html"(title:"Soporte a DAO")
-  "essentials.html"(title:"¿ActiveRecord?")
-}
-
-"configuration.html"(title:"Configuración básica para persistencia"){
-  "configuration.html"(title:"La base de datos y el namespace")
-  "configuration.html"(title:"Control de las conexiones(El *DataSource)")
-  "configuration.html"(title:"El DAO genérico")
-  "configuration.html"(title:"Pruebas de integración")
+  "essentials.html"(title:"La base de datos y el namespace")
+  "essentials.html"(title:"Control de las conexiones(El *DataSource)")
+  "essentials.html"(title:"Modelado de las operaciones como objetos Java(Caso de estudio)")
 }
 
 "jdbctemplate.html"(title:"Uso del JdbcTemplate"){
   "jdbctemplate.html"(title:"Inicio rápido con el SimpleJdbcTemplate")
-  "jdbctemplate.html"(title:"Modelado de las operaciones JDBC como objetos Java")
   "jdbctemplate.html"(title:"El JdbcTemplate y los RowMappers")
+  "jdbctemplate.html"(title:"Soporte a DAO's")
   "jdbctemplate.html"(title:"Creando DAO's con JdbcDaoSupport")
 }
 
@@ -39,6 +34,10 @@
   "transactions.html"(title:"Programando transacciones")
   "transactions.html"(title:"Transacciones declarativas")
   "transactions.html"(title:"Transacciones con anotaciones")
+}
+
+"configuration.html"(title:"Configuración básica para persistencia"){
+  "configuration.html"(title:"Pruebas de integración")
 }
 
 "liquibase.html"(title:"Refactor de base de datos"){
