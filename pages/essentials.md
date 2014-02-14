@@ -608,7 +608,7 @@ Nuestro ejemplo estará basado en un tablero de tareas(Taskboard), el cual esta 
   <div class="col-md-4">
     <h4><i class="icon-file"></i> Project.java</h4>
     <script type="syntaxhighlighter" class="brush: java"><![CDATA[
-package com.makingdevs.container;
+package com.makingdevs.model;
 
 import java.util.Date;
 import java.util.List;
@@ -632,7 +632,7 @@ public class Project {
   <div class="col-md-4">
     <h4><i class="icon-file"></i> UserStory.java</h4>
     <script type="syntaxhighlighter" class="brush: java"><![CDATA[
-package com.makingdevs.container;
+package com.makingdevs.model;
 
 import java.util.Date;
 import java.util.List;
@@ -655,7 +655,7 @@ public class UserStory {
   <div class="col-md-4">
     <h4><i class="icon-file"></i> Task.java</h4>
     <script type="syntaxhighlighter" class="brush: java"><![CDATA[
-package com.makingdevs.container;
+package com.makingdevs.model;
 
 import java.util.Date;
 import java.util.List;
@@ -680,7 +680,7 @@ public class Task {
   <div class="col-md-6">
     <h4><i class="icon-file"></i> TaskStatus.java</h4>
     <script type="syntaxhighlighter" class="brush: java"><![CDATA[
-package com.makingdevs.container;
+package com.makingdevs.model;
 
 public enum TaskStatus {
   TODO,WIP,DONE;
@@ -690,7 +690,7 @@ public enum TaskStatus {
   <div class="col-md-6">
     <h4><i class="icon-file"></i> User.java</h4>
     <script type="syntaxhighlighter" class="brush: java"><![CDATA[
-package com.makingdevs.container;
+package com.makingdevs.model;
 
 import java.util.Date;
 
@@ -715,7 +715,7 @@ public class User {
   <div class="col-md-6">
     <h4><i class="icon-file"></i> ProjectService.java</h4>
     <script type="syntaxhighlighter" class="brush: java"><![CDATA[
-package com.makingdevs.container;
+package com.makingdevs.model;
 
 public interface ProjectService {
   void createNewProject(Project project);
@@ -727,7 +727,7 @@ public interface ProjectService {
   <div class="col-md-6">
     <h4><i class="icon-file"></i> UserStoryService.java</h4>
     <script type="syntaxhighlighter" class="brush: java"><![CDATA[
-package com.makingdevs.container;
+package com.makingdevs.model;
 
 import java.util.List;
 
@@ -745,7 +745,7 @@ public interface UserStoryService {
   <div class="col-md-6">
     <h4><i class="icon-file"></i> TaskService.java</h4>
     <script type="syntaxhighlighter" class="brush: java"><![CDATA[
-package com.makingdevs.container;
+package com.makingdevs.model;
 
 public interface TaskService {
   Task createTaskForUserStory(String taskDescription, Long userStoryId);
@@ -757,7 +757,7 @@ public interface TaskService {
   <div class="col-md-6">
     <h4><i class="icon-file"></i> UserService.java</h4>
     <script type="syntaxhighlighter" class="brush: java"><![CDATA[
-package com.makingdevs.container;
+package com.makingdevs.model;
 
 public interface UserService {
   User findUserByUsername(String username);
