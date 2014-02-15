@@ -356,7 +356,297 @@ public class ProjectRowMapperTests {
 
 ## Soporte a DAO's
 
+El soporte de DAO de Spring apunta a hacer mucho más fácil el trabajo con las tecnologías de acceso a datos como JDBC, Hibernate, JPA o JDO en una forma consistente. Esto permite cambiar entre las tecnologías de persistencia fácilmente y además permite codificar sin preocuparse por cachar excepciones que sean específicas de cierta tecnología.
+
+<blockquote>
+  <p>La jerarquía de excepciones de accesso a datos en Spring es clave con ayuda de <code>DataAccessException</code>.</p>
+</blockquote>
+
+La mejor manera de garantizar que tus DAO's o repositorios provean de la traducción de excepciones es usando la anotación @Repository. Esta anotación permite el soporte de escaneo de componentes para encontrar y configurar _repositories_ sin el XML.
+
+Caulquier implementación de DAO o repositorio necesitará acceder a un recurso de persistencia, dependiendo de la tecnología de persistencia usada. Y puedes usar cualquier forma de Inyección de Dependencias que conozcas para hacerlo.
+
+<div class="row">
+  <div class="col-md-4">
+    <h4><i class="icon-file"></i> TaskDaoJpaImpl.java</h4>
+    <script type="syntaxhighlighter" class="brush: java"><![CDATA[
+// Until Spring 3
+// Check this out! http://docs.spring.io/spring/docs/3.1.4.RELEASE/javadoc-api/org/springframework/dao/support/DaoSupport.html
+@Repository
+public class TaskDaoJpaImpl extends JpaDaoSupport implements TaskDao {
+
+  // @Autowired
+  @PersistenceContext
+  private EntityManager entityManager;
+
+  // Über code !!!
+
+}
+    ]]></script>
+  </div>
+  <div class="col-md-4">
+    <h4><i class="icon-file"></i> TaskDaoHibernate3Impl.java</h4>
+    <script type="syntaxhighlighter" class="brush: java"><![CDATA[
+@Repository
+public class TaskDaoHibernate3Impl extends HibernateDaoSupport implements TaskDao {
+
+  private SessionFactory sessionFactory;
+
+  @Autowired
+  public void setSessionFactory(SessionFactory sessionFactory) {
+    this.sessionFactory = sessionFactory;
+  }
+
+    // Über code !!!
+
+}
+    ]]></script>
+  </div>
+  <div class="col-md-4">
+    <h4><i class="icon-file"></i> TaskDaoJdbcImpl.java</h4>
+    <script type="syntaxhighlighter" class="brush: java"><![CDATA[
+@Repository
+public class TaskDaoJdbcImpl extends JdbcDaoSupport implements TaskDao {
+
+  private JdbcTemplate jdbcTemplate;
+
+  @Autowired
+  public void init(DataSource dataSource) {
+    this.jdbcTemplate = new JdbcTemplate(dataSource);
+  }
+
+  // Über code !!!
+}
+    ]]></script>
+  </div>
+</div>
+
 ## Creando DAO's con JdbcDaoSupport
+
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-file"></i> UserStoryMapper.java</h4>
+    <script type="syntaxhighlighter" class="brush: java"><![CDATA[
+package com.makingdevs.practica4;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import org.springframework.jdbc.core.RowMapper;
+
+import com.makingdevs.model.Project;
+import com.makingdevs.model.UserStory;
+
+public class UserStoryMapper implements RowMapper<UserStory> {
+
+  @Override
+  public UserStory mapRow(ResultSet rs, int rowNum) throws SQLException {
+    UserStory userStory = new UserStory();
+    userStory.setId(rs.getLong("ID"));
+    userStory.setDateCreated(rs.getDate("DATE_CREATED"));
+    userStory.setLastUpdated(rs.getDate("LAST_UPDATED"));
+    userStory.setEffort(rs.getInt("EFFORT"));
+    userStory.setPriority(rs.getInt("PRIORITY"));
+    userStory.setDescription(rs.getString("DESCRIPTION"));
+    Project project = new Project();
+    project.setId(rs.getLong("PROJECT_ID"));
+    userStory.setProject(project);
+    return userStory;
+  }
+
+}
+    ]]></script>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> UserStoryDaoJdbcImplTests.java</h4>
+    <script type="syntaxhighlighter" class="brush: java"><![CDATA[
+package com.makingdevs.practica4;
+
+import static org.springframework.util.Assert.isTrue;
+
+import java.util.List;
+
+import org.junit.Assert;
+import org.junit.FixMethodOrder;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.makingdevs.dao.UserStoryDao;
+import com.makingdevs.model.Project;
+import com.makingdevs.model.UserStory;
+import static org.springframework.util.Assert.*;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "FirstDaoAppCtx.xml", "../practica1/DataSourceWithNamespace.xml" })
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+public class UserStoryDaoJdbcImplTests {
+
+  @Autowired
+  UserStoryDao userStoryDao;
+
+  private static long userStoryId;
+
+  @Test
+  public void test0FindAll() {
+    List<UserStory> userStories = userStoryDao.findAll();
+    notEmpty(userStories);
+  }
+
+  @Test
+  public void test1CreateUserStory() {
+    UserStory us = new UserStory();
+    us.setEffort(3);
+    us.setPriority(1);
+    us.setDescription("As user... I want... In order to...");
+    Project p = new Project();
+    p.setId(1L);
+    us.setProject(p);
+    userStoryId = userStoryDao.create(us);
+    isTrue(userStoryId > 0);
+  }
+
+  @Test
+  public void test2QueryUserStory() {
+    UserStory userStory = userStoryDao.read(userStoryId);
+    isTrue(3 == userStory.getEffort());
+    isTrue(1 == userStory.getPriority());
+    Assert.assertEquals("As user... I want... In order to...", userStory.getDescription());
+    Assert.assertNotNull(userStory.getProject());
+    isTrue(userStory.getProject().getId() == 1);
+  }
+
+  @Test
+  public void test3UpdateUserStory() {
+    UserStory userStory = userStoryDao.read(userStoryId);
+    String oldDescription = userStory.getDescription();
+    userStory.setDescription("As admin... I wish... Because...");
+    userStory.setEffort(5);
+    userStory.setPriority(4);
+    userStoryDao.update(userStory);
+    UserStory userStoryUpdated = userStoryDao.read(userStoryId);
+    isTrue(5 == userStoryUpdated.getEffort());
+    isTrue(4 == userStoryUpdated.getPriority());
+    Assert.assertEquals("As admin... I wish... Because...", userStoryUpdated.getDescription());
+    Assert.assertNotEquals(oldDescription, userStoryUpdated.getDescription());
+  }
+
+  @Test(expected = DataAccessException.class)
+  public void test4DeleteUserStory() {
+    UserStory userStory = userStoryDao.read(userStoryId);
+    userStoryDao.delete(userStory);
+    userStoryDao.read(userStoryId);
+  }
+
+  @Test
+  public void test5FindByEffort() {
+    List<UserStory> userStories = userStoryDao.findAllByEffortBetween(1, 3);
+    for (UserStory us : userStories) {
+      isTrue(us.getEffort() >= 1 && us.getEffort() <= 3);
+    }
+  }
+
+}
+    ]]></script>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> UserStoryMapper.java</h4>
+    <script type="syntaxhighlighter" class="brush: java"><![CDATA[
+package com.makingdevs.practica4;
+
+import java.util.Date;
+import java.util.List;
+
+import javax.sql.DataSource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.support.JdbcDaoSupport;
+import org.springframework.stereotype.Repository;
+
+import com.makingdevs.dao.UserStoryDao;
+import com.makingdevs.model.Project;
+import com.makingdevs.model.UserStory;
+
+@Repository
+public class UserStoryDaoJdbcImpl extends JdbcDaoSupport implements UserStoryDao {
+  
+  @Autowired
+  public UserStoryDaoJdbcImpl(DataSource dataSource){
+    super.setDataSource(dataSource);
+  }
+
+  private static String sqlQuery = "SELECT * FROM user_story";
+
+  @Override
+  public Long create(UserStory newInstance) {
+    String sqlInsert = "INSERT INTO user_story(DATE_CREATED,DESCRIPTION,EFFORT,LAST_UPDATED,PRIORITY,PROJECT_ID) "
+        + "VALUES(?,?,?,?,?,?);";
+    getJdbcTemplate().update(sqlInsert, new Date(), newInstance.getDescription(), newInstance.getEffort(), new Date(),
+        newInstance.getPriority(), newInstance.getProject().getId());
+    Long userStoryId = getJdbcTemplate().queryForObject(
+        "SELECT id FROM user_story WHERE DESCRIPTION = ? AND PROJECT_ID = ?",
+        new Object[] { newInstance.getDescription(), newInstance.getProject().getId() }, Long.class);
+    return userStoryId;
+  }
+
+  @Override
+  public UserStory read(Long id) {
+    return getJdbcTemplate().queryForObject(sqlQuery + " WHERE ID = ?", new Object[] { id }, new UserStoryMapper());
+  }
+
+  @Override
+  public void update(UserStory transientObject) {
+    String sqlUpdate = "UPDATE user_story SET DESCRIPTION = ?,EFFORT = ?,LAST_UPDATED = ?,PRIORITY = ?,PROJECT_ID = ? WHERE ID = ?";
+    getJdbcTemplate().update(sqlUpdate, transientObject.getDescription(), transientObject.getEffort(), new Date(),
+        transientObject.getPriority(), transientObject.getProject().getId(), transientObject.getId());
+  }
+
+  @Override
+  public void delete(UserStory persistentObject) {
+    String sqlDelete = "DELETE FROM user_story WHERE ID = ?";
+    getJdbcTemplate().update(sqlDelete, persistentObject.getId());
+  }
+
+  @Override
+  public List<UserStory> findAll() {
+    return getJdbcTemplate().query(sqlQuery, new UserStoryMapper());
+  }
+
+  @Override
+  public int countAll() {
+    String countQuery = "SELECT count(*) FROM user_story";
+    return getJdbcTemplate().queryForObject(countQuery, Integer.class);
+  }
+
+  @Override
+  public List<UserStory> findAllByEffortBetween(Integer lowValue, Integer maxValue) {
+    String findAllByEffortBetweenSql = sqlQuery + " WHERE EFFORT BETWEEN ? AND ?";
+    return getJdbcTemplate().query(findAllByEffortBetweenSql, new Object[] { lowValue, maxValue }, new UserStoryMapper());
+  }
+
+  @Override
+  public List<UserStory> findAllByPriorityBetween(Integer lowValue, Integer maxValue) {
+    String findAllByPriorityBetweenSql = sqlQuery + " WHERE PRIORITY BETWEEN ? AND ?";
+    return getJdbcTemplate().query(findAllByPriorityBetweenSql, new Object[] { lowValue, maxValue }, new UserStoryMapper());
+  }
+
+  @Override
+  public List<UserStory> findAllByProject(Project project) {
+    String findByProjectIdSql = "SELECT * FROM user_story us INNER JOIN project p ON p.id = us.project_id WHERE us.project_id = ?";
+    return getJdbcTemplate().query(findByProjectIdSql, new Object[] { project.getId() }, new UserStoryMapper());
+  }
+
+}
+    ]]></script>
+  </div>
+</div>
 
 ------
 
