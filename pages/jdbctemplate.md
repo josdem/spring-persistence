@@ -354,6 +354,14 @@ public class ProjectRowMapperTests {
   </div>
 </div>
 
+<div class="bs-callout bs-callout-info">
+<h4><i class="icon-coffee"></i> Información de utilidad</h4>
+  <p>
+    Te recomendamos consultar <a href="http://docs.spring.io/spring/docs/4.0.1.RELEASE/javadoc-api/org/springframework/jdbc/core/RowMapper.html">la documentación de la interfaz RowMapper</a> para que puedas ver que tipos de tratamiento le puedes dar a tu ResultSet y los valores que podrías regresar.
+  </a>
+  </p>
+</div>
+
 ## Soporte a DAO's
 
 El soporte de DAO de Spring apunta a hacer mucho más fácil el trabajo con las tecnologías de acceso a datos como JDBC, Hibernate, JPA o JDO en una forma consistente. Esto permite cambiar entre las tecnologías de persistencia fácilmente y además permite codificar sin preocuparse por cachar excepciones que sean específicas de cierta tecnología.
@@ -648,6 +656,240 @@ public class UserStoryDaoJdbcImpl extends JdbcDaoSupport implements UserStoryDao
   </div>
 </div>
 
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> TaskDaoConfig.java</h4>
+    <script type="syntaxhighlighter" class="brush: java"><![CDATA[
+package com.makingdevs.practica5;
+
+import javax.sql.DataSource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportResource;
+
+import com.makingdevs.dao.TaskDao;
+
+@Configuration
+@ImportResource(value={"classpath:/com/makingdevs/practica1/DataSourceWithNamespace.xml"})
+public class TaskDaoConfig {
+
+  @Autowired
+  DataSource dataSource;
+  
+  @Bean
+  public TaskDao taskDado(){
+    return new TaskDaoJdbcImpl(dataSource);
+  }
+}
+    ]]></script>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> TaskMapper.java</h4>
+    <script type="syntaxhighlighter" class="brush: java"><![CDATA[
+package com.makingdevs.practica5;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import org.springframework.jdbc.core.RowMapper;
+
+import com.makingdevs.model.Task;
+import com.makingdevs.model.TaskStatus;
+import com.makingdevs.model.UserStory;
+
+public class TaskMapper implements RowMapper<Task> {
+
+  @Override
+  public Task mapRow(ResultSet rs, int rowNum) throws SQLException {
+    Task task = new Task();
+    task.setId(rs.getLong("ID"));
+    task.setDateCreated(rs.getDate("DATE_CREATED"));
+    task.setDateCreated(rs.getDate("LAST_UPDATED"));
+    task.setDescription(rs.getString("DESCRIPTION"));
+    task.setStatus(TaskStatus.valueOf(rs.getString("STATUS")));
+    UserStory us = new UserStory();
+    us.setId(rs.getLong("USER_STORY_ID"));
+    task.setUserStory(us);
+    return task;
+  }
+
+}
+    ]]></script>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> TaskDaoJdbcImpl.java</h4>
+    <script type="syntaxhighlighter" class="brush: java"><![CDATA[
+package com.makingdevs.practica5;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.sql.DataSource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcDaoSupport;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.stereotype.Repository;
+
+import com.makingdevs.dao.TaskDao;
+import com.makingdevs.model.Task;
+import com.makingdevs.model.TaskStatus;
+import com.makingdevs.model.User;
+import com.makingdevs.model.UserStory;
+
+@Repository
+public class TaskDaoJdbcImpl extends NamedParameterJdbcDaoSupport implements TaskDao {
+
+  @Autowired
+  public TaskDaoJdbcImpl(DataSource dataSource) {
+    super.setDataSource(dataSource);
+  }
+
+  private static String sqlQuery = "SELECT * FROM TASK ";
+
+  @Override
+  public Long create(Task newInstance) {
+    String sqlInsert = "INSERT INTO TASK(DATE_CREATED,DESCRIPTION,LAST_UPDATED,STATUS,USER_STORY_ID)"
+        + " VALUES(:DATE_CREATED,:DESCRIPTION,:LAST_UPDATED,:STATUS,:USER_STORY_ID)";
+    Map<String, Object> inputParameters = new HashMap<String, Object>();
+    inputParameters.put("DATE_CREATED", new Date());
+    inputParameters.put("LAST_UPDATED", new Date());
+    inputParameters.put("DESCRIPTION", newInstance.getDescription());
+    inputParameters.put("STATUS", TaskStatus.TODO.toString());
+    inputParameters.put("USER_STORY_ID", newInstance.getUserStory().getId());
+    getNamedParameterJdbcTemplate().update(sqlInsert, inputParameters);
+    String sqlForPrimaryKey = "SELECT ID FROM TASK WHERE DESCRIPTION = :DESCRIPTION AND STATUS = :STATUS";
+    return getNamedParameterJdbcTemplate().queryForObject(sqlForPrimaryKey, inputParameters, Long.class);
+  }
+
+  @Override
+  public Task read(Long id) {
+    SqlParameterSource namedParameters = new MapSqlParameterSource("id", id);
+    return getNamedParameterJdbcTemplate().queryForObject(sqlQuery + "WHERE ID = :id", namedParameters,
+        new TaskMapper());
+  }
+
+  @Override
+  public void update(Task transientObject) {
+    String sqlUpdate = "UPDATE TASK SET DESCRIPTION = :description,"
+        + "LAST_UPDATED = :lastUpdated,STATUS = :status,USER_STORY_ID = :userStory.id WHERE ID = :id";
+    transientObject.setLastUpdated(new Date());
+    SqlParameterSource namedParameters = new BeanPropertySqlParameterSource(transientObject);
+    getNamedParameterJdbcTemplate().update(sqlUpdate, namedParameters);
+  }
+
+  @Override
+  public void delete(Task persistentObject) {
+    String sqlDelete = "DELETE FROM TASK WHERE ID = ?";
+    getJdbcTemplate().update(sqlDelete, persistentObject.getId());
+  }
+
+  @Override
+  public List<Task> findAll() {
+    return getNamedParameterJdbcTemplate().query(sqlQuery, new TaskMapper());
+  }
+
+  @Override
+  public int countAll() {
+    String countSql = "SELECT count(*) FROM task";
+    return getJdbcTemplate().queryForObject(countSql, Integer.class);
+  }
+
+  @Override
+  public List<Task> findAllByDescriptionLike(String description) {
+    String sqlFindAllByDescription = sqlQuery + " WHERE DESCRIPTION LIKE :DESCRIPTION";
+    SqlParameterSource namedParameters = new MapSqlParameterSource("DESCRIPTION", description);
+    return getNamedParameterJdbcTemplate().query(sqlFindAllByDescription, namedParameters, new TaskMapper());
+  }
+
+  @Override
+  public List<Task> findAllByUserStoryAndStatusEquals(UserStory userStory, TaskStatus taskStatus) {
+    // Is your turn SQL expert !!!
+    return null;
+  }
+
+  @Override
+  public List<Task> findAllByUser(User user) {
+ // Is your turn!!!!
+    return null;
+  }
+
+}
+    ]]></script>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> TaskDaoJdbcImplTests.java</h4>
+    <script type="syntaxhighlighter" class="brush: java"><![CDATA[
+package com.makingdevs.practica5;
+
+import static org.springframework.util.Assert.isTrue;
+import static org.springframework.util.Assert.notEmpty;
+
+import java.util.List;
+
+import org.junit.Assert;
+import org.junit.FixMethodOrder;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.makingdevs.dao.TaskDao;
+import com.makingdevs.model.Task;
+import com.makingdevs.model.UserStory;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = { TaskDaoConfig.class })
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+public class TaskDaoJdbcImplTests {
+
+  @Autowired
+  TaskDao taskDao;
+
+  private static long taskId;
+
+  @Test
+  public void test0FindAll() {
+    List<Task> tasks = taskDao.findAll();
+    notEmpty(tasks);
+  }
+
+  @Test
+  public void test1CreateTask() {
+    Task task = new Task();
+    task.setDescription("A new task");
+    UserStory userStory = new UserStory();
+    userStory.setId(1L);
+    task.setUserStory(userStory);
+    taskId = taskDao.create(task);
+    isTrue(taskId > 0);
+  }
+
+  @Test
+  public void test2QueryTask() {
+    Task task = taskDao.read(taskId);
+    Assert.assertNotNull(task);
+    isTrue(task.getDescription().equals("A new task"));
+  }
+
+  // Your responsability is to test!!!!
+
+}
+    ]]></script>
+  </div>
+</div>
+
 ------
 
 ### Enfoques de acceso a datos disponibles.
@@ -660,4 +902,4 @@ Podemos escoger varios enfoques para el acceso a datos con JDBC con `JdbcTemplat
 * Objetos de RDBMS
     * `MappingSqlQuery`
     * `SqlUpdate`
-    * `StoredProcedure`
+    * [`StoredProcedure`](http://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/jdbc/object/StoredProcedure.html)
