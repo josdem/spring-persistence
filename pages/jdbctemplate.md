@@ -890,6 +890,14 @@ public class TaskDaoJdbcImplTests {
   </div>
 </div>
 
+<div class="bs-callout bs-callout-warning">
+<h4><i class="icon-coffee"></i> Es tu turno!!!</h4>
+  <p>
+    Implementa los DAO's faltantes, inclusive crea relaciones que puedan poblar varios objetos con una consulta con ayuda del RowMapper.
+  </a>
+  </p>
+</div>
+
 ------
 
 ### Enfoques de acceso a datos disponibles.

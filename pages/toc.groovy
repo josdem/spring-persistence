@@ -6,21 +6,31 @@
 }
 
 "essentials.html"(title:"Conceptos esenciales de acceso a datos con Spring"){
-  "essentials.html"(title:"El uso de JDBC")
-  "essentials.html"(title:"Jerarquía de excepciones")
-  "essentials.html"(title:"Acceso a datos por Templates")
-  "essentials.html"(title:"Soporte a DAO")
-  "essentials.html"(title:"La base de datos y el namespace")
-  "essentials.html"(title:"Control de las conexiones(El *DataSource)")
-  "essentials.html"(title:"Modelado de las operaciones como objetos Java(Caso de estudio)")
+ "essentials.html"(title:"El uso de JDBC")
+ "essentials.html"(title:"Conociendo Spring JDBC"){
+   "essentials.html"(title:"Patrón de diseño DAO")  
+ }
+ "essentials.html"(title:"Manejo de excepciones")
+ "essentials.html"(title:"La base de datos y el namespace"){
+   "essentials.html"(title:"Uso de Commons DBCP y/o C3P0")  
+ }
+ "essentials.html"(title:"Modelado de las operaciones como objetos Java(Caso de estudio)")
+ "essentials.html"(title:"Estructura de las clases de dominio")
+ "essentials.html"(title:"Funcionalidad que deseamos implementar a nivel de interfaces")
 }
 
 "jdbctemplate.html"(title:"JdbcTemplate y DAO Support"){
-  "jdbctemplate.html"(title:"Uso de templates con Spring")
-  "jdbctemplate.html"(title:"Usando el *JdbcTemplate")
+  "jdbctemplate.html"(title:"Uso de templates con Spring"){
+    "jdbctemplate.html"(title:"Templates de acceso a datos")  
+  }
+  "jdbctemplate.html"(title:"Usando el *JdbcTemplate"){
+    "jdbctemplate.html"(title:"`NamedParameterJdbcTemplate`")  
+  }
   "jdbctemplate.html"(title:"El JdbcTemplate y los RowMappers")
   "jdbctemplate.html"(title:"Soporte a DAO's")
-  "jdbctemplate.html"(title:"Creando DAO's con JdbcDaoSupport")
+  "jdbctemplate.html"(title:"Creando DAO's con JdbcDaoSupport"){
+    "jdbctemplate.html"(title:"Enfoques de acceso a datos disponibles.")  
+  }
 }
 
 "hibernate.html"(title:"Hibernate y Spring"){
