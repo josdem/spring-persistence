@@ -38,11 +38,93 @@ La infraestructura de Spring provee del manejo apropiado de recursos y conversi�
 
 ### Hibernate en breve.
 
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> Arquitectura de alto nivel</h4>
+    <img src="img/overview.png" alt="overview"/>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> Arquitectura mínima</h4>
+    <img src="img/lite.png" alt="lite"/>
+  </div>
+</div>
 
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> Arquitectura comprensiva</h4>
+    <img src="img/full_cream.png" alt="overview"/>
+  </div>
+</div>
+
+#### API's esenciales
+
+* SessionFactory (`org.hibernate.SessionFactory`) - Un objeto _thread-safe_, con cache de mapeos compilados para una sola base de datos.Opcionalmente mantiene un cache de segundo nivel de datos que es reusable entre transacciones en un proceso o en un cluster.
+* Session (`org.hibernate.Session`) - Un objeto único, de vida corta representando una conversación entre la aplicación y el almacén persistente. Rodea una conexión JDBC dle tipo `java.sql.Connection`. Fábrica de objetos `Transaction`. Mantiene un caché de primer nivel de objetos y colecciones persistentes; este caché es usado cuando se navega el grafo de objetos.
+* Objetos y colecciones persistentes - Objetos que contienen el estado persistente y las funciones de negocio. Pueden ser JavaBeans/POJO ordinarios. Están asociados con una y sólo una `Session`, una vez que este objeto se cierra los objetos son desasociados _detached_ y libres de usarse en cualquier capa de la aplicación.
+* Objetos y colecciones transitorios - Instancias de clases persitentes que no están actualmente asociadas con un objeto `Session`. Quizá han sido instanciadas por la aplicación pero no han sido persistidas, o quizá han sido instanciadas por un objeto `Session` que ya ha sido cerrado.
+* Transaction (`org.hibernate.Transaction`) - Un objeto de vida aún más corta que `Session` usado por la aplicación para unidades atómicas de trabajo.
+* ConnectionProvider (`org.hibernate.connection.ConnectionProvider`) -  Una fábrica para un pool de conexiones de conexiones JDBC. No es expuesto por la aplicación pero se puede extender.
+* TransactionFactory (`org.hibernate.TransactionFactory`) - Una fábrica que instancias `Transaction`. No es expuesto por la aplicación pero se puede extender.
 
 ## El SessionFactory
 
-No vamos a considerar y profundizar el uso y/o configuración de Hibernate como parte de este entrenamiento, debido a que nuestro enfoque va más dirigido a mostrarte la integración que Spring tiene con el ORM. Sin embargo, te recomendamos leas [la guía de usuario de Hibernate](http://docs.jboss.org/hibernate/orm/4.3/manual/en-US/html/), pues encontrarás todo lo que necesitas saber para comprender el mapeo de los objetos y la forma en que se puede personalizar los objetos de Hibernate. Sin embargo, los casos que cubrimos aquí son los más signifcativos y los que podrás encontrar/crear en tus aplicaciones.**Añun así, estamos abiertos a las preguntas que tengas al respecto del uso de Hibernate**.
+No vamos a considerar y profundizar el uso y/o configuración de Hibernate como parte de este entrenamiento, debido a que nuestro enfoque va más dirigido a mostrarte la integración que Spring tiene con el ORM. Sin embargo, te recomendamos leas [la guía de usuario de Hibernate](http://docs.jboss.org/hibernate/orm/4.3/manual/en-US/html/), pues encontrarás todo lo que necesitas saber para comprender el mapeo de los objetos y la forma en que se puede personalizar los objetos de Hibernate. Sin embargo, los casos que cubrimos aquí son los más signifcativos y los que podrás encontrar/crear en tus aplicaciones.**Aún así, estamos abiertos a las preguntas que tengas al respecto del uso de Hibernate**.
+
+### Configuración programática con Hibernate
+
+<div class="row">
+  <div class="col-md-4">
+    <h4><i class="icon-code"></i> Configuración XML</h4>
+    <script type="syntaxhighlighter" class="brush: java;"><![CDATA[
+      Configuration cfg = new Configuration()
+      .addResource("User.hbm.xml")
+      .addResource("Project.hbm.xml");
+    ]]></script>
+  </div>
+  <div class="col-md-4">
+    <h4><i class="icon-code"></i> Configuración Java con Anotaciones</h4>
+    <script type="syntaxhighlighter" class="brush: java;"><![CDATA[
+      Configuration cfg = new Configuration()
+      .addClass(com.makingdevs.model.User.class)
+      .addClass(com.makingdevs.model.Project.class);
+    ]]></script>
+  </div>
+  <div class="col-md-4">
+    <h4><i class="icon-code"></i> Configuración con propiedades</h4>
+    <script type="syntaxhighlighter" class="brush: java;"><![CDATA[
+      Configuration cfg = new Configuration()
+      .addClass(com.makingdevs.model.User.class)
+      .addClass(com.makingdevs.model.Project.class)
+      .setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLInnoDBDialect")
+      .setProperty("hibernate.connection.datasource", "java:comp/env/jdbc/test")
+      .setProperty("hibernate.order_updates", "true");
+    ]]></script>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> Uso del SessionFactory</h4>
+    <script type="syntaxhighlighter" class="brush: java;"><![CDATA[
+      SessionFactory sessions = cfg.buildSessionFactory();
+      Session session = sessions.openSession(); // open a new Session
+    ]]></script>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> hibernate.properties</h4>
+    <script type="syntaxhighlighter" class="brush: plain;"><![CDATA[
+hibernate.connection.driver_class = org.postgresql.Driver
+hibernate.connection.url = jdbc:postgresql://localhost/makingdevs
+hibernate.connection.username = myuser
+hibernate.connection.password = secret
+hibernate.c3p0.min_size=5
+hibernate.c3p0.max_size=20
+hibernate.c3p0.timeout=1800
+hibernate.c3p0.max_statements=50
+hibernate.dialect = org.hibernate.dialect.PostgreSQL82Dialect
+    ]]></script>
+  </div>
+</div>
 
 <div class="bs-callout bs-callout-warning">
 <h4><i class="icon-coffee"></i> Información de utilidad</h4>
