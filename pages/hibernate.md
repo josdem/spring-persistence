@@ -134,7 +134,76 @@ hibernate.dialect = org.hibernate.dialect.PostgreSQL82Dialect
   </p>
 </div>
 
-Para evitar atar nuestros objetos de la aplicación a recursos _fijos(hard-coded)_, podemos definir recursos como el `DataSource` o un `SessionFactory`
+Para evitar atar nuestros objetos de la aplicación a recursos _fijos(hard-coded)_, podemos definir recursos como el `DataSource` o un `SessionFactory` como beans del contenedor de Spring. Los objetos de la aplicación que necesitan acceder a los recursos reciben las referencias a dichas instancias predefinidas a través de la inyección de dependencias.
+
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> HibernateAppCtx.xml</h4>
+    <script type="syntaxhighlighter" class="brush: xml;"><![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean id="sessionFactory"
+    class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+    <property name="dataSource" ref="dataSource" />
+    <property name="mappingResources">
+      <list>
+        <value>com/makingdevs/model/User.hbm.xml</value>
+        <value>com/makingdevs/model/Project.hbm.xml</value>
+        <value>com/makingdevs/model/UserStory.hbm.xml</value>
+        <value>com/makingdevs/model/Task.hbm.xml</value>
+      </list>
+    </property>
+    <property name="hibernateProperties">
+      <value>
+        hibernate.dialect=org.hibernate.dialect.H2Dialect
+      </value>
+    </property>
+  </bean>
+
+</beans>
+    ]]></script>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-file"></i> HibernateAppCtxTests.java</h4>
+    <script type="syntaxhighlighter" class="brush: java;"><![CDATA[
+package com.makingdevs.practica6;
+
+import static org.springframework.util.Assert.notNull;
+
+import org.hibernate.SessionFactory;
+import org.junit.FixMethodOrder;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "HibernateAppCtx.xml", "../practica1/DataSourceWithNamespace.xml" })
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+public class HibernateAppCtxTests {
+
+  @Autowired
+  SessionFactory sessionFactory;
+
+  @Test
+  public void test0SessionFactory() {
+    notNull(sessionFactory);
+  }
+
+  @Test
+  public void test1Session() {
+    org.springframework.util.Assert.notNull(sessionFactory.openSession());
+  }
+
+}
+    ]]></script>
+  </div>
+</div>
 
 
 ## Implementación de DAO's con Hibernate
