@@ -310,7 +310,7 @@ public abstract class GenericDaoHibernateImpl<T, PK extends Serializable> implem
   </jdbc:embedded-database>
 
   <bean id="sessionFactory"
-    class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+    class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
     <property name="dataSource" ref="dataSource" />
     <property name="mappingResources">
       <list>
@@ -332,7 +332,7 @@ public abstract class GenericDaoHibernateImpl<T, PK extends Serializable> implem
 
   <!-- This is very important, but it's explained later!!! Don't Worry about... -->
   <bean id="transactionManager"
-    class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+    class="org.springframework.orm.hibernate4.HibernateTransactionManager">
     <property name="sessionFactory" ref="sessionFactory" />
   </bean>
 
@@ -353,6 +353,13 @@ public abstract class GenericDaoHibernateImpl<T, PK extends Serializable> implem
   </div>
 </div>
 
+<div class="bs-callout bs-callout-info">
+<h4><i class="icon-coffee"></i> Información de utilidad.</h4>
+  <p>
+    <code>PersistenceExceptionTranslationPostProcessor</code> es un post procesador de beans el cual agrega un advisor a cualquier bean anotado con @Repository, de tal forma que, cualquier excepción de cualqueir plataforma de acceso a datos es cachada y relanzada por una excepción No Checada de Spring.
+  </a>
+  </p>
+</div>
 
 <div class="row">
   <div class="col-md-6">
@@ -388,7 +395,7 @@ public class ProjectDaoHibernateImpl extends GenericDaoHibernateImpl<Project, Lo
   </div>
 
   <div class="col-md-6">
-    <h4><i class="icon-code"></i> GenericDaoHibernateImpl.java</h4>
+    <h4><i class="icon-code"></i> ProjectDaoHibernateImplTests.java</h4>
     <script type="syntaxhighlighter" class="brush: java;"><![CDATA[
 package com.makingdevs.practica7;
 
@@ -477,6 +484,69 @@ public class ProjectDaoHibernateImplTests {
     assertNull(projectDeleted);
   }
 
+}
+    ]]></script>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> HibernateConfiguration.java</h4>
+    <script type="syntaxhighlighter" class="brush: java;"><![CDATA[
+package com.makingdevs.practica7;
+
+import javax.sql.DataSource;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.orm.hibernate3.HibernateTransactionManager;
+import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
+import org.springframework.transaction.PlatformTransactionManager;
+
+import com.makingdevs.dao.ProjectDao;
+
+@Configuration
+public class HibernateConfiguration {
+
+  @Bean
+  public DataSource dataSource() {
+    EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
+    builder.addScript("classpath:/com/makingdevs/scripts/project.sql");
+    builder.addScript("classpath:/com/makingdevs/scripts/user_story.sql");
+    builder.addScript("classpath:/com/makingdevs/scripts/task.sql");
+    builder.addScript("classpath:/com/makingdevs/scripts/user.sql");
+    builder.addScript("classpath:/com/makingdevs/scripts/constraints.sql");
+    return builder.setType(EmbeddedDatabaseType.H2).build();
+  }
+
+  @Bean
+  public LocalSessionFactoryBean sessionFactory() {
+    LocalSessionFactoryBean localSessionFactory = new LocalSessionFactoryBean();
+    localSessionFactory.setDataSource(dataSource());
+    localSessionFactory.setMappingResources("com/makingdevs/model/Project.hbm.xml",
+        "com/makingdevs/model/UserStory.hbm.xml", "com/makingdevs/model/Task.hbm.xml",
+        "com/makingdevs/model/User.hbm.xml");
+    localSessionFactory.getHibernateProperties().put("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
+    return localSessionFactory;
+  }
+
+  @Bean
+  public PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
+    return new PersistenceExceptionTranslationPostProcessor();
+  }
+
+  @Bean
+  public ProjectDao projectDao() {
+    return new ProjectDaoHibernateImpl(sessionFactory().getObject());
+  }
+  
+  @Bean
+  public HibernateTransactionManager transactionManager(){
+    HibernateTransactionManager transactionManager = new HibernateTransactionManager(sessionFactory().getObject());
+    return transactionManager;
+  }
 }
     ]]></script>
   </div>
