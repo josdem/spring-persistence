@@ -146,7 +146,7 @@ Para evitar atar nuestros objetos de la aplicación a recursos _fijos(hard-coded
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
   <bean id="sessionFactory"
-    class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+    class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
     <property name="dataSource" ref="dataSource" />
     <property name="mappingResources">
       <list>
@@ -208,4 +208,276 @@ public class HibernateAppCtxTests {
 
 ## Implementación de DAO's con Hibernate
 
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> GenericDaoHibernateImpl.java</h4>
+    <script type="syntaxhighlighter" class="brush: java;"><![CDATA[
+package com.makingdevs.practica7;
 
+import java.io.Serializable;
+import java.lang.reflect.ParameterizedType;
+import java.util.List;
+
+import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Projections;
+
+import com.makingdevs.dao.GenericDao;
+
+public abstract class GenericDaoHibernateImpl<T, PK extends Serializable> implements GenericDao<T, PK> {
+
+  private SessionFactory sessionFactory;
+
+  private Class<T> type = null;
+
+  public SessionFactory getSessionFactory() {
+    return sessionFactory;
+  }
+
+  public void setSessionFactory(SessionFactory sessionFactory) {
+    this.sessionFactory = sessionFactory;
+  }
+
+  @Override
+  public void create(T newInstance) {
+    sessionFactory.getCurrentSession().save(newInstance);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public T read(PK id) {
+    return (T) sessionFactory.getCurrentSession().get(getType(), id);
+  }
+
+  @Override
+  public void update(T transientObject) {
+    sessionFactory.getCurrentSession().update(transientObject);
+  }
+
+  @Override
+  public void delete(T persistentObject) {
+    sessionFactory.getCurrentSession().delete(persistentObject);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public List<T> findAll() {
+    return sessionFactory.getCurrentSession().createCriteria(getType()).list();
+  }
+
+  @Override
+  public int countAll() {
+    return (Integer) sessionFactory.getCurrentSession().createCriteria(getType()).setProjection(Projections.rowCount())
+        .uniqueResult();
+  }
+
+  @SuppressWarnings("unchecked")
+  public Class<T> getType() {
+    if (type == null) {
+      Class<?> clazz = getClass();
+      while (!(clazz.getGenericSuperclass() instanceof ParameterizedType)) {
+        clazz = clazz.getSuperclass();
+      }
+      type = (Class<T>) ((ParameterizedType) clazz.getGenericSuperclass()).getActualTypeArguments()[0];
+    }
+    return type;
+  }
+
+}
+    ]]></script>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> HibernateAppCtx.xml</h4>
+    <script type="syntaxhighlighter" class="brush: xml;"><![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+  xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.0.xsd
+    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+  <context:component-scan base-package="com.makingdevs.practica7" />
+
+  <jdbc:embedded-database type="H2" id="dataSource">
+    <jdbc:script location="classpath:/com/makingdevs/scripts/user.sql" />
+    <jdbc:script location="classpath:/com/makingdevs/scripts/project.sql" />
+    <jdbc:script location="classpath:/com/makingdevs/scripts/user_story.sql" />
+    <jdbc:script location="classpath:/com/makingdevs/scripts/task.sql" />
+    <jdbc:script location="classpath:/com/makingdevs/scripts/constraints.sql" />
+  </jdbc:embedded-database>
+
+  <bean id="sessionFactory"
+    class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+    <property name="dataSource" ref="dataSource" />
+    <property name="mappingResources">
+      <list>
+        <value>com/makingdevs/model/User.hbm.xml</value>
+        <value>com/makingdevs/model/Project.hbm.xml</value>
+        <value>com/makingdevs/model/UserStory.hbm.xml</value>
+        <value>com/makingdevs/model/Task.hbm.xml</value>
+      </list>
+    </property>
+    <property name="hibernateProperties">
+      <value>
+        hibernate.dialect=org.hibernate.dialect.H2Dialect
+      </value>
+    </property>
+  </bean>
+
+  <bean
+    class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
+
+  <!-- This is very important, but it's explained later!!! Don't Worry about... -->
+  <bean id="transactionManager"
+    class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+    <property name="sessionFactory" ref="sessionFactory" />
+  </bean>
+
+  <aop:config>
+    <aop:pointcut id="allMethods"
+      expression="execution(public * com.makingdevs.practica7.**.*(..))" />
+    <aop:advisor advice-ref="txAdvice" pointcut-ref="allMethods" />
+  </aop:config>
+
+  <tx:advice id="txAdvice" transaction-manager="transactionManager">
+    <tx:attributes>
+      <tx:method name="*" />
+    </tx:attributes>
+  </tx:advice>
+
+</beans>
+    ]]></script>
+  </div>
+</div>
+
+
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> ProjectDaoHibernateImpl.java</h4>
+    <script type="syntaxhighlighter" class="brush: java;"><![CDATA[
+package com.makingdevs.practica7;
+
+import org.hibernate.Query;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import com.makingdevs.dao.ProjectDao;
+import com.makingdevs.model.Project;
+
+@Repository
+public class ProjectDaoHibernateImpl extends GenericDaoHibernateImpl<Project, Long> implements ProjectDao {
+
+  @Autowired
+  public ProjectDaoHibernateImpl(SessionFactory sessionFactory) {
+    super.setSessionFactory(sessionFactory);
+  }
+
+  @Override
+  public Project findByCodename(String codename) {
+    Query query = getSessionFactory().getCurrentSession().createQuery("from Project where codeName = ?");
+    query.setString(0, codename);
+    return (Project) query.uniqueResult();
+  }
+
+}
+    ]]></script>
+  </div>
+
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> GenericDaoHibernateImpl.java</h4>
+    <script type="syntaxhighlighter" class="brush: java;"><![CDATA[
+package com.makingdevs.practica7;
+
+import static org.springframework.util.Assert.notNull;
+
+import java.util.Date;
+
+import javax.sql.DataSource;
+
+import org.junit.FixMethodOrder;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.util.Assert;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
+
+import com.makingdevs.dao.ProjectDao;
+import com.makingdevs.model.Project;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "HibernateAppCtx.xml" })
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+public class ProjectDaoHibernateImplTests {
+
+  @Autowired
+  ProjectDao projectDao;
+  @Autowired
+  DataSource dataSource;
+  
+  private static Long projectId;
+
+  @Test
+  public void test0ProjectDao() {
+    notNull(projectDao);
+    notNull(dataSource);
+  }
+
+  @Test
+  public void test1CreateProject() {
+    Project project = new Project();
+    project.setName("New Project");
+    project.setCodeName("NEWPROJECT");
+    project.setDescription("This is a new project");
+    project.setDateCreated(new Date());
+    project.setLastUpdated(new Date());
+    projectDao.create(project);
+    Assert.isTrue(project.getId() > 0);
+    projectId = project.getId();
+  }
+  
+  @Test
+  public void test2ReadProject(){
+    Project project = projectDao.read(projectId);
+    Assert.isTrue(project.getId() > 0);
+    assertEquals("New Project", project.getName());
+    assertEquals("NEWPROJECT", project.getCodeName());
+  }
+  
+  @Test
+  public void test3UpdateProject(){
+    Project project = projectDao.read(projectId);
+    String originalCodeName = project.getCodeName();
+    project.setCodeName("PROJECTUPDATED");
+    project.setName("Project updated");
+    projectDao.update(project);
+    Project projectUpdated = projectDao.read(projectId);
+    assertNotEquals(originalCodeName, projectUpdated.getCodeName());
+  }
+  
+  @Test 
+  public void test4FindProjectByCodeName(){
+    Project project = projectDao.findByCodename("PROJECTUPDATED");
+    assertEquals("PROJECTUPDATED", project.getCodeName());
+  }
+  
+  @Test 
+  public void test5DeleteProject(){
+    Project project = projectDao.read(projectId);
+    projectDao.delete(project);
+    Project projectDeleted = projectDao.read(projectId);
+    assertNull(projectDeleted);
+  }
+
+}
+    ]]></script>
+  </div>
+</div>
