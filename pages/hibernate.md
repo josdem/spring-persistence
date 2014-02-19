@@ -73,7 +73,7 @@ No vamos a considerar y profundizar el uso y/o configuración de Hibernate como 
 ### Configuración programática con Hibernate
 
 <div class="alert alert-info">
-  <strong><i class="icon-terminal"></i></strong> Revisa los mapeos de Hibernate con XML, considera que puedes crear la configuración de Hibernate con XML o anotaciones, incluso las de JPA.
+  <strong><i class="icon-terminal"></i></strong> Revisa los mapeos de Hibernate con XML, considera que puedes crear la configuración de Hibernate con  anotaciones, incluso las de JPA.
 </div>
 
 <div class="row">
