@@ -71,8 +71,140 @@ La administración de transacciones de Spring soporta cambios a reglas tradicion
   <p>SpringFramework te da la elección de escalar la aplicación a un servidor de aplicaciones totalmente cargado cuando lo necesites.</p>
 </blockquote>
 
-## Manejadores de transacciones
+## Comprensión de los Manejadores de transacciones
 
+Spring emplea un mecanismo de _callback_ que abstrae la implementación de la transacción actual del código de la transacción. Y si la aplicación usa un sólo recurso persistente, entonces Spring puede usar el soporte ofrecido por un mecanismo de persistencia. Pero si la aplicación tiene el requerimiento de cubrir varios recursos para una transacción, entonces Spring puede soportar transacciones distribuidas(XA) usando implementaciones de terceros de JTA.
+
+El elemento principal de Spring para la abstracción transaccional es la noción de una estrategia de transacion(_transaction strategy_), la cual está definida por la interfaz `org.springframework.transaction.PlatformTransactionManager`:
+
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> PlatformTransactionManager.java</h4>
+    <script type="syntaxhighlighter" class="brush: java;"><![CDATA[
+      public interface PlatformTransactionManager {
+        TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException;
+        void commit(TransactionStatus status) throws TransactionException;
+        void rollback(TransactionStatus status) throws TransactionException;
+      }
+    ]]></script>
+  </div>
+</div>
+
+Las implementaciones de esta interfaz son definidas como cualquier otro bean en el contenedor de IoC de Spring. Además manteniendo la filosofía de Spring, la excepción `TransactionException` puede ser arrojada por cualquier método de la interfaz, y la cual es _no checada_.
+
+El método `getTransaction(...)` regresa un objeto `TransactionStatus`, dependiendo del objeto `TransactionDefinition`. Lo que hace `TransactionStatus` es representar una nueva transacción, o una transacción existente si una transacción coincidente existe en la pila de la llamada actual. La implicación de este último caso es que el `TransactionStatus` esta asociado con un hilo de ejecución.
+
+La interface `TransactionDefinition` específica:
+
+* **Isolation** - El grado el cual esta transacción esta aislada del trabajo de otras transacciones.
+* **Propagation** - Típicamente, todo el código se ejecuta dentro de una transacción, sin embargo, tenemos la opción de definir de definir el comportamiento en el evento de que un método transaccional sea ejecutado en la misma transacción o abra una nueva transacción suspendiendo la actual.
+* **Timeout** - Cuanto tiempo deberá correr esta transacción antes de se le haga rollback automático por superar dicho tiempo.
+* **Read-only** status - Modifica la transacción para asegurar que no alterarán los datos en una operación.
+
+La interface `TransactionStatus` provee de una forma simple para codificar la transacción y controlar el código de ejecución de la transacción, así mismo, buscar el estado de la transacción.
+
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> TransactionStatus.java</h4>
+    <script type="syntaxhighlighter" class="brush: java;"><![CDATA[
+public interface TransactionStatus extends SavepointManager {
+
+    boolean isNewTransaction();
+
+    boolean hasSavepoint();
+
+    void setRollbackOnly();
+
+    boolean isRollbackOnly();
+
+    void flush();
+
+    boolean isCompleted();
+
+}
+    ]]></script>
+  </div>
+</div>
+
+### Definición de los manejadores de transacciones
+
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> DataSourceTransactionManager</h4>
+    <script type="syntaxhighlighter" class="brush: xml;"><![CDATA[
+      <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driverClassName}" />
+        <property name="url" value="${jdbc.url}" />
+        <property name="username" value="${jdbc.username}" />
+        <property name="password" value="${jdbc.password}" />
+      </bean>
+
+      <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+      </bean>
+    ]]></script>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> HibernateTransactionManager</h4>
+    <script type="syntaxhighlighter" class="brush: xml;"><![CDATA[
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <property name="mappingResources">
+          <list>
+            <value>com/makingdevs/model/User.hbm.xml</value>
+            <!-- ... -->
+          </list>
+        </property>
+        <property name="hibernateProperties">
+          <value>
+            hibernate.dialect=${hibernate.dialect}
+          </value>
+        </property>
+      </bean>
+
+      <bean id="txManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory" />
+      </bean>
+    ]]></script>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> JtaTransactionManager</h4>
+    <script type="syntaxhighlighter" class="brush: xml;"><![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:jee="http://www.springframework.org/schema/jee"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/jee
+        http://www.springframework.org/schema/jee/spring-jee.xsd">
+
+    <jee:jndi-lookup id="dataSource" jndi-name="jdbc/makingdevs"/>
+
+    <bean id="txManager" class="org.springframework.transaction.jta.JtaTransactionManager" />
+
+</beans>
+    ]]></script>
+  </div>
+</div>
+
+Otros manejadores de transacciones disponibles están en `org.springframework.transaction`:
+
+* `jca.cci.connection.CciLocalTransactionManager`
+* `jms.connection.JmsTransactionManager `
+* `jms.connection.JmsTransactionManager102`
+* `orm.jdo.JdoTransactionManager`
+* `orm.jpa.JpaTransactionManager`
+* `transaction.jta.OC4JJtaTransactionManager`
+* `transaction.jta.WebLogicJtaTransactionManager`
+* `transaction.jta.WebSphereUowTransactionManager`
 
 ## Programando transacciones
 
