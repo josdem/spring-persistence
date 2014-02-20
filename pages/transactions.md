@@ -208,11 +208,199 @@ Otros manejadores de transacciones disponibles están en `org.springframework.tr
 
 ## Programando transacciones
 
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> TransactionTemplateConfig.java</h4>
+    <script type="syntaxhighlighter" class="brush: java;"><![CDATA[
+package com.makingdevs.practica8;
 
+import javax.sql.DataSource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportResource;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
+
+@Configuration
+@ImportResource(value={"classpath:/com/makingdevs/practica1/DataSourceWithNamespace.xml"})
+// Look ma!, I'm reusing the DataSource and the JdbcTemplate
+@ComponentScan(basePackages={"com.makingdevs.practica4","com.makingdevs.practica8"})
+public class TransactionTemplateConfig {
+  
+  @Autowired
+  DataSource dataSource;
+
+  @Bean
+  public DataSourceTransactionManager transactionManager(){
+    return new DataSourceTransactionManager(dataSource);
+  }
+  
+  // Look ma!, I'm declaring the Transaction Template
+  @Bean
+  public TransactionTemplate transactionTemplate(){
+    return new TransactionTemplate(transactionManager());
+  }
+}
+    ]]></script>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> TransactionTemplateConfig.java</h4>
+    <script type="syntaxhighlighter" class="brush: java;"><![CDATA[
+package com.makingdevs.practica8;
+
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import com.makingdevs.dao.UserStoryDao;
+import com.makingdevs.model.Project;
+import com.makingdevs.model.UserStory;
+import com.makingdevs.services.UserStoryService;
+
+@Service
+public class UserStoryServiceImpl implements UserStoryService {
+  
+  @Autowired
+  TransactionTemplate transactionTemplate;
+  
+  @Autowired
+  UserStoryDao userStoryDao;
+
+  @Override
+  public void createUserStory(final UserStory userStory) {
+    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+      @Override
+      protected void doInTransactionWithoutResult(TransactionStatus status) {
+        userStory.setDateCreated(new Date());
+        userStory.setLastUpdated(new Date());
+        userStoryDao.create(userStory);
+      }
+    });
+  }
+
+  @Override
+  public List<UserStory> findUserStoriesByProject(final String codeName) {
+    transactionTemplate.setReadOnly(true);
+    List<UserStory> userStories = transactionTemplate.execute(new TransactionCallback<List<UserStory>>() {
+      @Override
+      public List<UserStory> doInTransaction(TransactionStatus status) {
+        Project project = new Project();
+        project.setCodeName(codeName);
+        project.setId(1L);
+        // TODO: Find project by codeName must be implemented...
+        return userStoryDao.findAllByProject(project);
+      }
+    });
+    transactionTemplate.setReadOnly(false);
+    return userStories;
+  }
+
+  // Other unimplemented methods
+
+}
+    ]]></script>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> TransactionTemplateConfig.java</h4>
+    <script type="syntaxhighlighter" class="brush: java;"><![CDATA[
+package com.makingdevs.practica8;
+
+import java.util.List;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.makingdevs.model.Project;
+import com.makingdevs.model.UserStory;
+import com.makingdevs.services.UserStoryService;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = { TransactionTemplateConfig.class })
+public class ProgrammaticTransactionsTests {
+  
+  @Autowired
+  UserStoryService userStoryService;
+
+  @Test
+  public void testCreateUSWithTx() {
+    UserStory us = new UserStory();
+    us.setDescription("As an user...I want...Beacuse...");
+    us.setEffort(5);
+    us.setPriority(3);
+    Project p = new Project();
+    p.setId(1L);
+    us.setProject(p);
+    userStoryService.createUserStory(us);
+    Assert.assertTrue(us.getId() > 0);
+    System.out.println(us.getId() );
+  }
+  
+  @Test
+  public void testFindUSByProjectCodeNameWithTX(){
+    List<UserStory> userStories = userStoryService.findUserStoriesByProject("PROJECTNAME");
+    Assert.assertTrue(userStories.size() > 0);
+  }
+
+}
+    ]]></script>
+  </div>
+</div>
+
+Para poder apreciar mucho mejor el manejo de transacciones, te recomendamos habilites en tu logger algunos paquetes que reflejan el uso del `DataSource`:
+
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> log4j.properties</h4>
+    <script type="syntaxhighlighter" class="brush: plain;"><![CDATA[
+log4j.category.org.springframework.beans.factory=INFO
+log4j.category.org.springframework.transaction=DEBUG
+log4j.category.org.springframework.jdbc=DEBUG
+    ]]></script>
+  </div>
+</div>
+
+Y obtendrás una salida similar a la siguiente:
+
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> Console output</h4>
+    <script type="syntaxhighlighter" class="brush: plain;"><![CDATA[
+DataSourceTransactionManager  - Creating new transaction with name [null]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT
+SimpleDriverDataSource  - Creating new JDBC Driver Connection to [jdbc:h2:mem:dataSource;DB_CLOSE_DELAY=-1]
+DataSourceTransactionManager  - Acquired Connection [conn3: url=jdbc:h2:mem:dataSource user=SA] for JDBC transaction
+DataSourceTransactionManager  - Switching JDBC Connection [conn3: url=jdbc:h2:mem:dataSource user=SA] to manual commit
+JdbcTemplate  - Executing prepared SQL update
+JdbcTemplate  - Executing prepared SQL statement [INSERT INTO user_story(DATE_CREATED,DESCRIPTION,EFFORT,LAST_UPDATED,PRIORITY,PROJECT_ID) VALUES(?,?,?,?,?,?);]
+JdbcTemplate  - SQL update affected 1 rows
+JdbcTemplate  - Executing prepared SQL query
+JdbcTemplate  - Executing prepared SQL statement [SELECT id FROM user_story WHERE DESCRIPTION = ? AND PROJECT_ID = ?]
+DataSourceTransactionManager  - Initiating transaction commit
+DataSourceTransactionManager  - Committing JDBC transaction on Connection [conn3: url=jdbc:h2:mem:dataSource user=SA]
+DataSourceTransactionManager  - Releasing JDBC Connection [conn3: url=jdbc:h2:mem:dataSource user=SA] after transaction
+DataSourceUtils  - Returning JDBC Connection to DataSource
+    ]]></script>
+  </div>
+</div>
 
 ## Transacciones declarativas
 
-
+![Alt tx](/img/tx.jpg)
 
 ## Transacciones con anotaciones
 

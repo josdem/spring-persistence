@@ -563,3 +563,11 @@ public class HibernateConfiguration {
   </a>
   </p>
 </div>
+
+<div class="bs-callout bs-callout-warning">
+<h4><i class="icon-coffee"></i> Es tu turno!!!</h4>
+  <p>
+    Implementa los DAO's faltantes, revisa los mapeos de Hibernate pues están icnompletos.
+  </a>
+  </p>
+</div>
