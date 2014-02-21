@@ -230,6 +230,24 @@ Incluyelo en tu archivo **db-changelog.xml** con ayuda del tag `<include file="c
   <strong><i class="icon-terminal"></i></strong> Agrega los archivos que corresponden a todo el modelo relacional.
 </div>
 
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> rename-column.sql</h4>
+    <script type="syntaxhighlighter" class="brush: sql;"><![CDATA[
+--liquibase formatted sql
+
+--changeset makingdevs:18
+alter table project add column full_description varchar(255);
+
+--changeset makingdevs:19
+update project set full_description=description where id=id and 1=1;
+
+--changeset makingdevs:20
+alter table project drop column description;
+    ]]></script>
+  </div>
+</div>
+
 
 <div class="bs-callout bs-callout-info">
 <h4><i class="icon-coffee"></i> Información de utilidad</h4>
