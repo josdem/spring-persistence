@@ -595,7 +595,7 @@ public class DeclarativeTransactionsTests {
 <div class="row">
   <div class="col-md-6">
     <h4><i class="icon-code"></i> DeclarativeTxAppCtx.xml</h4>
-    <script type="syntaxhighlighter" class="brush: xml;"><![
+    <script type="syntaxhighlighter" class="brush: xml;"><![CDATA[
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
@@ -633,7 +633,7 @@ public class DeclarativeTransactionsTests {
   </div>
   <div class="col-md-6">
     <h4><i class="icon-code"></i> DeclarativeTxWithExceptionsAppCtx.xml</h4>
-    <script type="syntaxhighlighter" class="brush: xml; highlight:[22,30];"><![
+    <script type="syntaxhighlighter" class="brush: xml; highlight:[21,29];"><![CDATA[
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
@@ -685,3 +685,202 @@ Aunque tu puedes cambiarlos como desees.
 
 ## Transacciones con anotaciones
 
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> UserStoryServiceImpl.java</h4>
+    <script type="syntaxhighlighter" class="brush: java; highlight:[17,31,40,46];"><![CDATA[
+package com.makingdevs.practica10;
+
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.makingdevs.dao.UserStoryDao;
+import com.makingdevs.model.Project;
+import com.makingdevs.model.UserStory;
+import com.makingdevs.services.BusinessException;
+import com.makingdevs.services.UserStoryServiceChecked;
+
+@Service
+@Transactional
+public class UserStoryServiceImpl implements UserStoryServiceChecked {
+
+  @Autowired
+  UserStoryDao userStoryDao;
+
+  @Override
+  public void createUserStory(final UserStory userStory) {
+    userStory.setDateCreated(new Date());
+    userStory.setLastUpdated(new Date());
+    userStoryDao.create(userStory);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public List<UserStory> findUserStoriesByProject(final String codeName) {
+    Project project = new Project();
+    project.setCodeName(codeName);
+    project.setId(1L);
+    return userStoryDao.findAllByProject(project);
+  }
+
+  @Override
+  @Transactional(readOnly = true, rollbackFor = BusinessException.class)
+  public boolean isUserStoryDone(Long userStoryId) throws BusinessException {
+    throw new BusinessException("Checked exception");
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public UserStory findUserStoryByIdentifier(Long userStoryId) {
+    throw new UnsupportedOperationException("Runtime exception");
+  }
+
+}
+    ]]></script>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> TransactionsAnnotationsAppCtx.xml</h4>
+    <script type="syntaxhighlighter" class="brush: xml; highlight:[12];"><![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:tx="http://www.springframework.org/schema/tx"
+  xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.0.xsd
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+  <tx:annotation-driven/>
+  
+  <import resource="../practica1/DataSourceWithNamespace.xml"/>
+
+  <bean
+    class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+    <constructor-arg ref="dataSource" />
+  </bean>
+
+  <context:component-scan base-package="com.makingdevs.practica4" />
+  <context:component-scan base-package="com.makingdevs.practica10" />
+
+  <bean id="transactionManager"
+    class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    <property name="dataSource" ref="dataSource" />
+  </bean>
+
+</beans>
+    ]]></script>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> AnnotatedTransactionsConfig.java</h4>
+    <script type="syntaxhighlighter" class="brush: java; highlight:[16];"><![CDATA[
+package com.makingdevs.practica10;
+
+import javax.sql.DataSource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportResource;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+@Configuration
+@ImportResource(value={"classpath:/com/makingdevs/practica1/DataSourceWithNamespace.xml"})
+@ComponentScan(basePackages={"com.makingdevs.practica4","com.makingdevs.practica10"})
+@EnableTransactionManagement
+public class AnnotatedTransactionsConfig {
+  
+  @Autowired
+  DataSource dataSource;
+
+  @Bean
+  public DataSourceTransactionManager transactionManager(){
+    return new DataSourceTransactionManager(dataSource);
+  }
+
+}
+    ]]></script>
+  </div>
+</div>
+
+## Tipos de propagación
+
+
+## Wrapping de excepciones
+
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> TransactionsAnnotationsAppCtx.xml</h4>
+    <script type="syntaxhighlighter" class="brush: xml;"><![CDATA[
+package com.makingdevs.advices;
+
+import org.apache.log4j.Logger;
+import org.aspectj.lang.annotation.AfterThrowing;
+import org.aspectj.lang.annotation.Aspect;
+import org.hibernate.exception.GenericJDBCException;
+import org.springframework.core.annotation.Order;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.UncategorizedSQLException;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.CannotCreateTransactionException;
+
+import com.makingdevs.services.BusinessException;
+
+@Component
+@Aspect
+@Order(value = 1)
+public class ServiceThrowsAdvice {
+
+  Logger log = Logger.getLogger(this.getClass());
+
+  @AfterThrowing(pointcut = "execution(* com.makingdevs.services..*.*(..))", throwing = "dataAccessEx")
+  public void doRecoveryActionDataAccess(DataAccessException dataAccessEx)
+      throws BusinessException {
+    log.debug(dataAccessEx.getMessage());
+    throw new BusinessException("Error en Persistencia: ", dataAccessEx);
+  }
+
+  @AfterThrowing(pointcut = "execution(* com.makingdevs.services..*.*(..))", throwing = "jdbcException")
+  public void doRecoveryActionGenericJDBC(GenericJDBCException jdbcException)
+      throws BusinessException {
+    log.debug(jdbcException.getMessage());
+    throw new BusinessException("Error en Persistencia: ", jdbcException);
+  }
+
+  @AfterThrowing(pointcut = "execution(* com.makingdevs..*.*(..))", throwing = "uncategorizedSQLException")
+  public void doRecoveryUncategorized(
+      UncategorizedSQLException uncategorizedSQLException)
+      throws BusinessException {
+    log.debug(uncategorizedSQLException.getMessage());
+    throw new BusinessException("Error en SQL: ", uncategorizedSQLException);
+  }
+
+  @AfterThrowing(pointcut = "execution(* com.makingdevs.services..*.*(..))", throwing = "txException")
+  public void doRecoveryCreateTransaction(
+      CannotCreateTransactionException txException)
+      throws BusinessException {
+    log.debug(txException.getMessage());
+    throw new BusinessException("Error en Persistencia: ", txException);
+  }
+}
+    ]]></script>
+  </div>
+</div>
+
+<div class="bs-callout bs-callout-info">
+<h4><i class="icon-coffee"></i> Información de utilidad</h4>
+  <p>
+    Spring provee soporte de transacciones certificado para los servidores de aplicaciones más demandados. Además, te recomendamos siempre usar el manejador de transacciones adecuado a tu tecnología de persistencia.
+  </a>
+  </p>
+</div>

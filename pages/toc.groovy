@@ -50,6 +50,7 @@
   "transactions.html"(title:"Programando transacciones")
   "transactions.html"(title:"Transacciones declarativas")
   "transactions.html"(title:"Transacciones con anotaciones")
+  "transactions.html"(title:"Tipos de propagación")
   "transactions.html"(title:"Wrapping de excepciones")
 }
 
