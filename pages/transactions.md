@@ -254,6 +254,7 @@ public class TransactionTemplateConfig {
     <script type="syntaxhighlighter" class="brush: java;"><![CDATA[
 package com.makingdevs.practica8;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -307,21 +308,47 @@ public class UserStoryServiceImpl implements UserStoryService {
     return userStories;
   }
 
-  // Other unimplemented methods
+  @Override
+  public boolean isUserStoryDone(Long userStoryId) {
+    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+      @Override
+      protected void doInTransactionWithoutResult(TransactionStatus status) {
+        try {
+          throw new IOException("Checked exception");
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+    });
+    return false;
+  }
+
+  @Override
+  public UserStory findUserStoryByIdentifier(Long userStoryId) {
+    transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+      @Override
+      protected void doInTransactionWithoutResult(TransactionStatus status) {
+        throw new UnsupportedOperationException("Runtime exception");
+      }
+    });
+    return null;
+  }
 
 }
     ]]></script>
   </div>
   <div class="col-md-6">
-    <h4><i class="icon-code"></i> TransactionTemplateConfig.java</h4>
+    <h4><i class="icon-code"></i> ProgrammaticTransactionsTests.java</h4>
     <script type="syntaxhighlighter" class="brush: java;"><![CDATA[
 package com.makingdevs.practica8;
 
 import java.util.List;
 
 import org.junit.Assert;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -332,13 +359,14 @@ import com.makingdevs.services.UserStoryService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { TransactionTemplateConfig.class })
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ProgrammaticTransactionsTests {
-  
+
   @Autowired
   UserStoryService userStoryService;
 
   @Test
-  public void testCreateUSWithTx() {
+  public void test1CreateUSWithTx() {
     UserStory us = new UserStory();
     us.setDescription("As an user...I want...Beacuse...");
     us.setEffort(5);
@@ -348,13 +376,23 @@ public class ProgrammaticTransactionsTests {
     us.setProject(p);
     userStoryService.createUserStory(us);
     Assert.assertTrue(us.getId() > 0);
-    System.out.println(us.getId() );
+    System.out.println(us.getId());
   }
-  
+
   @Test
-  public void testFindUSByProjectCodeNameWithTX(){
+  public void test2FindUSByProjectCodeNameWithTX() {
     List<UserStory> userStories = userStoryService.findUserStoriesByProject("PROJECTNAME");
     Assert.assertTrue(userStories.size() > 0);
+  }
+
+  @Test
+  public void test3FindCheckedExceptionTX() {
+    userStoryService.isUserStoryDone(1L);
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void test4FindUncheckedExceptionTX() {
+    userStoryService.findUserStoryByIdentifier(1L);
   }
 
 }
@@ -400,7 +438,7 @@ DataSourceUtils  - Returning JDBC Connection to DataSource
 
 ## Transacciones declarativas
 
-![Alt tx](/img/tx.jpg)
+![Alt tx](/img/tx.png)
 
 ## Transacciones con anotaciones
 
