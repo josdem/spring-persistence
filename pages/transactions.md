@@ -250,11 +250,10 @@ public class TransactionTemplateConfig {
 
 <div class="row">
   <div class="col-md-6">
-    <h4><i class="icon-code"></i> TransactionTemplateConfig.java</h4>
+    <h4><i class="icon-code"></i> UserStoryServiceImpl.java</h4>
     <script type="syntaxhighlighter" class="brush: java;"><![CDATA[
 package com.makingdevs.practica8;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -268,14 +267,15 @@ import org.springframework.transaction.support.TransactionTemplate;
 import com.makingdevs.dao.UserStoryDao;
 import com.makingdevs.model.Project;
 import com.makingdevs.model.UserStory;
-import com.makingdevs.services.UserStoryService;
+import com.makingdevs.services.BusinessException;
+import com.makingdevs.services.UserStoryServiceChecked;
 
 @Service
-public class UserStoryServiceImpl implements UserStoryService {
-  
+public class UserStoryServiceImpl implements UserStoryServiceChecked {
+
   @Autowired
   TransactionTemplate transactionTemplate;
-  
+
   @Autowired
   UserStoryDao userStoryDao;
 
@@ -309,13 +309,13 @@ public class UserStoryServiceImpl implements UserStoryService {
   }
 
   @Override
-  public boolean isUserStoryDone(Long userStoryId) {
+  public boolean isUserStoryDone(Long userStoryId) throws BusinessException {
     transactionTemplate.execute(new TransactionCallbackWithoutResult() {
       @Override
       protected void doInTransactionWithoutResult(TransactionStatus status) {
         try {
-          throw new IOException("Checked exception");
-        } catch (IOException e) {
+          throw new BusinessException("CheckedExcpetion");
+        } catch (BusinessException e) {
           e.printStackTrace();
         }
       }
@@ -355,7 +355,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.makingdevs.model.Project;
 import com.makingdevs.model.UserStory;
-import com.makingdevs.services.UserStoryService;
+import com.makingdevs.services.BusinessException;
+import com.makingdevs.services.UserStoryServiceChecked;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { TransactionTemplateConfig.class })
@@ -363,7 +364,7 @@ import com.makingdevs.services.UserStoryService;
 public class ProgrammaticTransactionsTests {
 
   @Autowired
-  UserStoryService userStoryService;
+  UserStoryServiceChecked userStoryService;
 
   @Test
   public void test1CreateUSWithTx() {
@@ -386,7 +387,7 @@ public class ProgrammaticTransactionsTests {
   }
 
   @Test
-  public void test3FindCheckedExceptionTX() {
+  public void test3FindCheckedExceptionTX() throws BusinessException {
     userStoryService.isUserStoryDone(1L);
   }
 
@@ -440,6 +441,247 @@ DataSourceUtils  - Returning JDBC Connection to DataSource
 
 ![Alt tx](/img/tx.png)
 
-## Transacciones con anotaciones
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> UserStoryServiceImpl.java</h4>
+    <script type="syntaxhighlighter" class="brush: java;"><![CDATA[
+package com.makingdevs.practica9;
 
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.makingdevs.dao.UserStoryDao;
+import com.makingdevs.model.Project;
+import com.makingdevs.model.UserStory;
+import com.makingdevs.services.BusinessException;
+import com.makingdevs.services.UserStoryServiceChecked;
+
+@Service
+public class UserStoryServiceImpl implements UserStoryServiceChecked {
+
+  @Autowired
+  UserStoryDao userStoryDao;
+
+  @Override
+  public void createUserStory(final UserStory userStory) {
+    userStory.setDateCreated(new Date());
+    userStory.setLastUpdated(new Date());
+    userStoryDao.create(userStory);
+  }
+
+  @Override
+  public List<UserStory> findUserStoriesByProject(final String codeName) {
+    Project project = new Project();
+    project.setCodeName(codeName);
+    project.setId(1L);
+    return userStoryDao.findAllByProject(project);
+  }
+
+  @Override
+  public boolean isUserStoryDone(Long userStoryId) throws BusinessException {
+    throw new BusinessException("Checked exception");
+  }
+
+  @Override
+  public UserStory findUserStoryByIdentifier(Long userStoryId) {
+    throw new UnsupportedOperationException("Runtime exception");
+  }
+
+}
+    ]]></script>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> NoTxAppCtx.xml</h4>
+    <script type="syntaxhighlighter" class="brush: xml;"><![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+  xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.0.xsd
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+  <jdbc:embedded-database type="H2" id="dataSource">
+    <jdbc:script location="com/makingdevs/scripts/user.sql" />
+    <jdbc:script location="com/makingdevs/scripts/project.sql" />
+    <jdbc:script location="com/makingdevs/scripts/user_story.sql" />
+    <jdbc:script location="com/makingdevs/scripts/task.sql" />
+    <jdbc:script location="com/makingdevs/scripts/constraints.sql" />
+  </jdbc:embedded-database>
+
+  <bean
+    class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+    <constructor-arg ref="dataSource" />
+  </bean>
+
+  <context:component-scan base-package="com.makingdevs.practica4" />
+  <context:component-scan base-package="com.makingdevs.practica9" />
+
+</beans>
+    ]]></script>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> DeclarativeTransactionsTests.java</h4>
+    <script type="syntaxhighlighter" class="brush: java; highlight:[20,21,22];"><![CDATA[
+package com.makingdevs.practica9;
+
+import java.util.List;
+
+import org.junit.Assert;
+import org.junit.FixMethodOrder;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.makingdevs.model.Project;
+import com.makingdevs.model.UserStory;
+import com.makingdevs.services.BusinessException;
+import com.makingdevs.services.UserStoryServiceChecked;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "NoTxAppCtx.xml" })
+//@ContextConfiguration(locations = { "NoTxAppCtx.xml","DeclarativeTxAppCtx.xml" })
+//@ContextConfiguration(locations = { "NoTxAppCtx.xml","DeclarativeTxWithExceptionsAppCtx.xml" })
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+public class DeclarativeTransactionsTests {
+
+  @Autowired
+  UserStoryServiceChecked userStoryService;
+
+  @Test
+  public void test1CreateUSWithTx() {
+    UserStory us = new UserStory();
+    us.setDescription("As an user...I want...Beacuse...");
+    us.setEffort(5);
+    us.setPriority(3);
+    Project p = new Project();
+    p.setId(1L);
+    us.setProject(p);
+    userStoryService.createUserStory(us);
+    Assert.assertTrue(us.getId() > 0);
+    System.out.println(us.getId());
+  }
+
+  @Test
+  public void test2FindUSByProjectCodeNameWithTX() {
+    List<UserStory> userStories = userStoryService.findUserStoriesByProject("PROJECTNAME");
+    Assert.assertTrue(userStories.size() > 0);
+  }
+
+  @Test(expected = BusinessException.class)
+  public void test3FindCheckedExceptionTX() throws BusinessException {
+    userStoryService.isUserStoryDone(1L);
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void test4FindUncheckedExceptionTX() {
+    userStoryService.findUserStoryByIdentifier(1L);
+  }
+
+}
+    ]]></script>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> DeclarativeTxAppCtx.xml</h4>
+    <script type="syntaxhighlighter" class="brush: xml;"><![
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+  xmlns:tx="http://www.springframework.org/schema/tx"
+  xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+  <bean id="txManager"
+    class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    <property name="dataSource" ref="dataSource" />
+  </bean>
+
+  <!-- the transactional advice (what happens; see the <aop:advisor/> bean 
+    below) -->
+  <tx:advice id="txAdvice" transaction-manager="txManager">
+    <!-- the transactional semantics... -->
+    <tx:attributes>
+      <!-- all methods starting with get are read-only -->
+      <tx:method name="find*" read-only="true" />
+      <tx:method name="is*" read-only="true" />
+      <!-- other methods use the default transaction settings (see below) -->
+      <tx:method name="*" />
+    </tx:attributes>
+  </tx:advice>
+
+  <aop:config>
+    <aop:pointcut id="transactionServiceOperation"
+      expression="execution(* com.makingdevs.practica9.*Service*.*(..))" />
+    <aop:advisor advice-ref="txAdvice" pointcut-ref="transactionServiceOperation" />
+  </aop:config>
+
+</beans>
+    ]]></script>
+  </div>
+  <div class="col-md-6">
+    <h4><i class="icon-code"></i> DeclarativeTxWithExceptionsAppCtx.xml</h4>
+    <script type="syntaxhighlighter" class="brush: xml; highlight:[22,30];"><![
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+  xmlns:tx="http://www.springframework.org/schema/tx"
+  xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+  <bean id="txManager"
+    class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    <property name="dataSource" ref="dataSource" />
+  </bean>
+
+  <!-- the transactional advice (what happens; see the <aop:advisor/> bean 
+    below) -->
+  <tx:advice id="txAdvice" transaction-manager="txManager">
+    <!-- the transactional semantics... -->
+    <tx:attributes>
+      <!-- all methods starting with get are read-only -->
+      <tx:method name="find*" read-only="true" />
+      <tx:method name="is*" read-only="true" rollback-for="com.makingdevs.services.BusinessException"/>
+      <!-- other methods use the default transaction settings (see below) -->
+      <tx:method name="*" />
+    </tx:attributes>
+  </tx:advice>
+
+  <aop:config>
+    <aop:pointcut id="transactionServiceOperation"
+      expression="execution(* com.makingdevs..*Service*.*(..))" />
+    <aop:advisor advice-ref="txAdvice" pointcut-ref="transactionServiceOperation" />
+  </aop:config>
+
+</beans>
+    ]]></script>
+  </div>
+</div>
+
+### Configuración de `<tx:advice/>`
+
+En `<tx:method/>` existen atributos transaccionales ya definidos:
+
+* El tipo de propagación es `REQUIRED` por defecto
+* El nivel de aislamiento(isolation) es `DEFAULT`
+* La transacción es de lectura/escritura
+* El timeout por default de la tranasacción es establecido por el manejador de transacciones suscrito(el manejador).
+* Cualquier `RuntimeException` dispara el rollback de la transacción, no así, con cualquier `Exception` checada, a menos que se defina en las reglas.
+
+Aunque tu puedes cambiarlos como desees.
+
+## Transacciones con anotaciones
 
