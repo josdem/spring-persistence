@@ -256,3 +256,40 @@ alter table project drop column description;
   </a>
   </p>
 </div>
+
+
+### Archivo final de changelog
+
+<div class="row">
+  <div class="col-md-12">
+    <h4><i class="icon-code"></i> db-changelog.xml</h4>
+    <script type="syntaxhighlighter" class="brush: xml;"><![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+  <changeSet id="1" author="makingdevs">
+    <createTable tableName="someTable">
+      <column name="id" type="int">
+        <constraints primaryKey="true" nullable="false" />
+      </column>
+      <column name="name" type="varchar(50)">
+        <constraints nullable="false" />
+      </column>
+      <column name="active" type="boolean" defaultValueBoolean="true" />
+    </createTable>
+  </changeSet>
+  
+  <include file="com/makingdevs/practica12/project.sql"/>
+  <include file="com/makingdevs/practica12/user_story.sql"/>
+  <include file="com/makingdevs/practica12/task.sql"/>
+  <include file="com/makingdevs/practica12/user.sql"/>
+  <include file="com/makingdevs/practica12/constraints.sql"/>
+  <include file="com/makingdevs/practica12/rename-column.sql"/>
+
+</databaseChangeLog>
+    ]]></script>
+  </div>
+</div>
