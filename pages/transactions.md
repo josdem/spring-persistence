@@ -837,6 +837,8 @@ public class AnnotatedTransactionsConfig {
 
 ![Alt mandatory](/img/mandatory.png)
 
+![Alt mandatory2](/img/mandatory2.png)
+
 ### NOT_SUPPORTED
 
 * Ejecuta código sin transacción
