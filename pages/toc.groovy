@@ -39,11 +39,6 @@
   "hibernate.html"(title:"Implementación de DAO's con Hibernate")
 }
 
-"springdata.html"(title:"Spring Data"){
-  "springdata.html"(title:"Spring Data JDBC Extensions")
-  "springdata.html"(title:"Spring Data JPA")
-}
-
 "transactions.html"(title:"Manejo de transacciones"){
   "transactions.html"(title:"Conceptos esenciales")
   "transactions.html"(title:"Manejadores de transacciones")

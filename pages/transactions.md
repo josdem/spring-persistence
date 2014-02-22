@@ -816,6 +816,62 @@ public class AnnotatedTransactionsConfig {
 ## Tipos de propagación y niveles de aislamiento
 
 
+### REQUIRED
+
+![Alt required](/img/required.png)
+
+### REQUIRES_NEW
+
+![Alt requires_new](/img/requires_new.png)
+
+### SUPPORTS
+
+* Si existe una transacción la usa
+* Si no existe, no levanta transacción
+
+![Alt supports](/img/supports.png)
+
+### MANDATORY
+
+* Debe existir una transacción, si no existe falla y arroja excpeción
+
+![Alt mandatory](/img/mandatory.png)
+
+### NOT_SUPPORTED
+
+* Ejecuta código sin transacción
+* Si existe alguna levantada entonces la suspende
+* Si no existe transacción previa, no hay problema
+* Solo se puede usar con el `JtaTransactionManager`
+
+![Alt not_supported](/img/not_supported.png)
+
+### NEVER
+
+* No admite ningún tipo de transacciones
+* Falla si existe alguna transacción en curso
+
+![Alt never](/img/never.png)
+
+### NESTED
+
+* Es similar a REQUIRED
+* Crea una sola transacción
+* Hace un `SavePoint` para dar rollback sobre dicho punto
+* La transacción puede dar commit, a pesar de los rollbacks de transacciones NESTED
+* Sólo disponible para `DataSourceTransactionManager`
+
+![Alt nested](/img/nested.png)
+
+### Niveles de aislamiento
+
+* ISOLATION_DEFAULT
+* ISOLATION_READ_UNCOMMITTED
+* ISOLATION_READ_COMMITTED
+* ISOLATION_REPEATABLE_READ
+* ISOLATION_SERIALIZABLE
+
+
 ## Wrapping de excepciones
 
 <div class="row">
