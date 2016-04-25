@@ -1,0 +1,61 @@
+
+= Gracias por escoger MakingDevs
+
+Queremos darte las gracias!
+Nuestro compromiso es formar mejores desarrolladores de software...
+
+
+Sabemos que la responsabilidad de crear aplicaciones debe de estar sustentada con habilidades que permitan garantizar la calidad de las mismas, así como, la satisfacción de quiénes las usan. Nosotros creemos importante que la preparación de los profesionales del software debe estar dirigida a:
+
+* Técnicas
+* Métodos
+* Metodologías
+* Tecnologías
+* Filosofía y ética
+
+Es por esto, que hemos concebido (en base a años de experiencia en proyectos de software y trabajo en múltiples organizaciones), una serie de servicios que permiten adquirir y/o mejorar habilidades a los profesionales del software, consistentes en:
+
+* Mentoría
+* Entrenamiento
+* Desarrollo de software (externo y en sitio)
+
+Los cuales proveen los elementos que les permitirán llevar a ejecución el desarrollo de un proyecto de software de forma disciplinada, ordenada y comunicada. En conjunto con el aprendizaje de prácticas recomendadas por muchos desarrolladores reconocidos en la industria, las cuáles, son transmitidas de forma personal, o a través de nuestra colaboración directa.
+
+Adicionalmente, como muestra de una parte de nuestro trabajo, colaboramos activamente en varias comunidades orientadas al desarrollo de software, en diferentes ramos de la industria que creemos importantes, dichas comunidades también reciben nuestro apoyo directo en su sustento; nuestras aportaciones son a través de la organización de reuniones presenciales, eventos, screencast / vídeos, podcast y artículos que dejan marca del conocimiento adquirido y compartido. Pueden encontrar a los profesionales de MakingDevs en:
+
+* http://springhispano.org[SpringHispano ]
+* http://grails.mx[GrailsMX ]
+* http://artesanos.de/software[Artesanos de Software ]
+* http://vivecodigo.org[ViveCodigo ]
+* http://recursivo.org[Recursivo ]
+* http://scala-mug.org[ScalaMug ]
+
+Si deseas más información de nuestro trabajo privado o colaboraciones públicas, con gusto podemos establecer un canal de comunicación directo que nos permita ampliar el panorama de actividades que hemos realizado. Nuestra información de contacto es:
+
+
+.Making Devs S.C.
+****
+Dirección::
+Av. México 145, Int. 404, Del Carmen, Coyoacán
+Teléfono::
+6363 - 8147
+Correo electrónico::
+info@makingdevs.com
+Facebook::
+facebook.com/MakingDevs
+Twitter::
+twitter.com/makingdevs
+GitHub::
+github.com/makingdevs
+YouTube::
+youtube.com/makingdevs
+****
+
+Además no te pierdas el entrenamiento que todavía tenemos para ti en http://makingdevs.com/training[nuestro sitio].
+
+_ATENTAMENTE_
+
+_Making Devs_
+
+*“Making best code, through better developers”*
+

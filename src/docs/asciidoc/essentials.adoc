@@ -297,7 +297,7 @@ public class DeclaringDataSourceTests {
 
 Aunque potencialmente, se podría utilizar cualquier manejador de base de datos que provea de un Driver de Conexión el cual permitá manipularla.
 
-### Control de las conexiones(El *DataSource)
+### Control de las conexiones(El DataSource)
 Independientemente de cual forma de soporte en Spring uses, necesitarás configurar una referencia a un DataSource. Spring ofrece varias opciones para configurar beans DataSource en una aplicación:
 
 * DataSources que son definidos por el driver

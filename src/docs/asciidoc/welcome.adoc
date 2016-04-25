@@ -1,0 +1,72 @@
+
+= Bienvenido a MakingDevs.
+
+Nuestro compromiso es ofrecerte una experiencia que realce las habilidades de aquellas personas que se dedican a desarrollar software. Sabemos que la responsabilidad de crear aplicaciones debe de estar sustentada con habilidades que permitan garantizar la calidad de las mismas, así como, la satisfacción de quiénes las usan. Nosotros creemos importante que la preparación de los profesionales del software debe estar dirigida a:
+
+* Técnicas
+* Métodos
+* Metodologías
+* Tecnologías
+* Filosofía y ética
+
+Es por esto, que hemos concebido (en base a años de experiencia en proyectos de software y trabajo en múltiples organizaciones), una serie de servicios que permiten adquirir y/o mejorar habilidades a los profesionales del software, consistentes en:
+
+* Mentoría
+* Entrenamiento
+* Desarrollo de software (externo y en sitio)
+
+Los cuales proveen los elementos que les permitirán llevar a ejecución el desarrollo de un proyecto de software de forma disciplinada, ordenada y comunicada. En conjunto con el aprendizaje de prácticas recomendadas por muchos desarrolladores reconocidos en la industria, las cuáles, son transmitidas de forma personal, a través de nuestra colaboración directa.
+
+Adicionalmente, como muestra de una parte de nuestro trabajo, colaboramos activamente en varias comunidades orientadas al desarrollo de software, en diferentes ramos de la industria que creemos importantes, dichas comunidades también reciben nuestro apoyo directo en su sustento; nuestras aportaciones son a través de la organización de reuniones presenciales, eventos, screencast / vídeos, podcast y artículos que dejan marca del conocimiento adquirido y compartido. Pueden encontrar a los profesionales de MakingDevs participando en:
+
+* http://springhispano.org[SpringHispano]
+* http://grails.mx[GrailsMX]
+* http://artesanos.de/software[Artesanos de Software]
+* http://vivecodigo.org[ViveCodigo]
+* http://recursivo.org[Recursivo]
+* http://scala-mug.org[ScalaMug]
+
+____
+“Making best code, through better developers”
+____
+
+== Objetivo del entrenamiento
+
+* Diseñar aplicaciones basadas en Springframework
+* Conocer los elementos de Depdendency Injection e Inversion of Control
+* Profundizar en el manejo del contenedor de Spring
+* Conocer los diferentes formas para crear un Application Context
+* Aplicar programación Orientada a Aspectos
+* Conocer los elementos de testing para crear componentes sustentables
+* Mejorar tus habilidades como desarrollador Java en la creación de aplicaciones Java empresariales
+
+== Consideraciones
+
+* El curso es práctico, y por lo tanto la primera recomendación es: __practiquen!__
+* Te recomendamos trabajar en pareja, pues mientras uno codifica el otro no pierde nota y al final se complementan.
+* Hay ejercicios resueltos, sin embargo te invitamos a que los resuelvas tu mismo.
+* Iremos mencionando referencias a herramientas, artículos y tecnologías que pueden ayudarnos.
+* Las dudas pueden exponerse durante clase, en el momento que se presenten, no esperes, es tu tiempo.
+* Si surge alguna duda fuera de clase con respecto al contenido del curso, puedes contactárnos.
+* Este curso tiene ejercicios para reforzar el conocimiento adquirido.
+* Aunque hay ejemplos de código, te recomendamos tomar notas de código como comentarios.
+* Habrá evaluaciones de conocimiento.
+* Es recomemdable saber Groovy, aunque no es necesario.
+* La experiencia con Ant y Maven ayudan mucho.
+
+== Herramientas para entrenamiento
+
+Es importante contar con los siguientes elementos instalados:
+
+* Necesarios:
+** El JDK perfectamente instalado con la variable JAVA_HOME establecida
+** Una shell donde se puedan correr comandos del sistema operativo
+** Editor de textos: Sublime Text 2, Vim, Emacs, Notepad++
+* Opcionales:
+** Un IDE:
+*** Netbeans
+*** Eclipse + Plugin de Groovy
+*** Spring Source Tool Suite
+*** IntelliJ IDEA (__recomendable__)
+
+
