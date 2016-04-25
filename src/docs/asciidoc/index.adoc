@@ -10,6 +10,7 @@
 include::welcome.adoc[]
 include::essentials.adoc[]
 include::jdbctemplate.adoc[]
+include::hibernate.adoc[]
 include::thanks.adoc[]
 
 
