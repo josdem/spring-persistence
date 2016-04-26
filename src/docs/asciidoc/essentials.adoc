@@ -96,7 +96,7 @@ Uno de los objetivos de Spring es permitir el desarrollo de aplicaciones orienta
 
 Muchos desarrolladores, se refieren a los objetos de persistencia de una aplicación como _repositories_.
 
-## Patrón de diseño DAO
+### Patrón de diseño DAO
 Usa un Objeto de Acceso a Datos(DAO) para abstraer y encapsular todo el acceso al DataSource. El DAO administra la conexión con el DataSource para obtener y acceder datos.
 
 El DAO implementa el mecanismo de acceso requerido para trabajar con el DataSource, el cual podría ser una base de datos relacional. El DAO esconde completamente la implementación del DataSource de los componentes que lo llaman, debido a que la interfaz no lo puede modificar por sí misma.DAO
@@ -353,6 +353,9 @@ Con Spring podemos configurar una referencia a un DataSource que esta dentro de 
 
 NOTE:  El uso de `resource-ref="true"` antepone al nombre JNDI `java:comp/env/`.
 
+## Modelado de las operaciones como objetos Java(Caso de estudio)
+Nuestro ejemplo estará basado en un tablero de tareas(Taskboard), el cual esta asignado a algun proyecto que a su vez tiene varias historias de usuario, dichas historias serán pobladas por las tareas. Todo este conjunto nos dará como resultado un tablero que potencialmente podrá ser visualizado en un front-end.
+
 ### Creación de proyectos
 
 [cols="1"]
@@ -439,7 +442,7 @@ NOTE:  El uso de `resource-ref="true"` antepone al nombre JNDI `java:comp/env/`.
 3. Restricción
 |===
 
-### Estructura de las clases de dominio
+## Estructura de las clases de dominio
 
 *Project.java*
 
@@ -539,7 +542,7 @@ public class User {
 }
 ----
 
-### Funcionalidad que deseamos implementar a nivel de interfaces
+## Funcionalidad que deseamos implementar a nivel de interfaces
 
 [source,java]
 ----

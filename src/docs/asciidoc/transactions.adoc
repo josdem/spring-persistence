@@ -171,7 +171,7 @@ Otros manejadores de transacciones disponibles están en org.springframework.tra
 * `transaction.jta.WebLogicJtaTransactionManager`
 * `transaction.jta.WebSphereUowTransactionManager`
 
-### Programando transacciones
+## Programando transacciones
 
 *TransactionTemplateConfig.java*
 [source,java]
@@ -551,7 +551,7 @@ public class DeclarativeTransactionsTests {
 </beans>
 ----
 
-## Configuración de `<tx:advice/>`
+### Configuración de `<tx:advice/>`
 En `<tx:method/>` existen atributos transaccionales ya definidos:
 
 * El tipo de propagación es `REQUIRED` por defecto
@@ -862,7 +862,7 @@ public class AllDaoTests { }
 public class AllAnotherDaoTests { }
 ----
 
-## Administración de transacciones en pruebas
+### Administración de transacciones en pruebas
 En el frameworks de pruebas de Spring, las transacciones son manejadas por `TransactionalTestExecutionListener`, el cual es configurado por defecto aunque no se lo indiquemos. Y para habilitar el soporte de transaccciones debemos proveer de un `PlatformTransactionManager` en el contexto de la aplicación en la semántica de `@ContextCinfiguration`. Adicionalmente, debemos declarar con `@Transactional` las clases y métodos que deseamos sean transaccionales.
 
 Si las transacciones no están habilitados para toda la clase de prueba, podemos anotar los métodos explícitamente con `@Transactional`. Para controlar si una operación debe hacer commit para un método de prueba en particular, podemos utilizar la anotación `@Rollback` para sobreescribir la configuración del rollback establecido por la transacción de forma general

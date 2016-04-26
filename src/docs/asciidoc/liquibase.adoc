@@ -9,11 +9,11 @@ NOTE: La *refactorización de base de datos* es un simple cambio al esquema de b
 
 Una aspecto a considerar es que un refactor de base de datos es conceptualmente más difícil que un refactor de código; el de código sólo debe de mantener el comportamiento semántico y el de base de datos debe mantener el semántico y el informacional.
 
-## ¿Por qué el refactor de base de datos?
+*¿Por qué el refactor de base de datos?*
 * Para arreglar de forma segura bases de datos legadas
 * Para soportar el desarrollo que evoluciona el software
 
-## ¿Por qué es difícil el refactor de base de datos?
+*¿Por qué es difícil el refactor de base de datos?*
 Los esquemas relacionales de base de datos están potencialmente atadois a una amplia variedad de cosas:
 
 * El código fuente de la aplicación
@@ -26,7 +26,7 @@ Los esquemas relacionales de base de datos están potencialmente atadois a una a
 * Código de pruebas
 * Documentación - _Aunque esta no nos importa_
 
-## ¿Cómo refactorizas tu base de datos?
+*¿Cómo refactorizas tu base de datos?*
 Se puede resumir en un proceso de tres pasos:
 
 1. Comienza en tu sandbox de desarrollo
@@ -46,7 +46,7 @@ Se puede resumir en un proceso de tres pasos:
 
 TIP: Liquibase es una librería independiente open source para el rastreo, administración y aplicación de cambios de base de datos.
 
-### El archivo changelog
+## El archivo changelog
 ----
 jdbc.username=makingdevs
 jdbc.password=makingdevs
@@ -196,7 +196,7 @@ Incluyelo en tu archivo db-changelog.xml con ayuda del tag `<include file="com/m
 NOTE: Agrega los archivos que corresponden a todo el modelo relacional.
 
 *rename-column.sql*
-[soruce,sql]
+[source,sql]
 ----
 --liquibase formatted sql
 
