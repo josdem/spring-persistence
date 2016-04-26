@@ -12,6 +12,7 @@ include::essentials.adoc[]
 include::jdbctemplate.adoc[]
 include::hibernate.adoc[]
 include::transactions.adoc[]
+include::liquibase.adoc[]
 include::thanks.adoc[]
 
 
