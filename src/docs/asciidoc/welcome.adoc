@@ -32,13 +32,13 @@ ____
 
 == Objetivo del entrenamiento
 
-* Diseñar aplicaciones basadas en Springframework
-* Conocer los elementos de Depdendency Injection e Inversion of Control
-* Profundizar en el manejo del contenedor de Spring
-* Conocer los diferentes formas para crear un Application Context
-* Aplicar programación Orientada a Aspectos
-* Conocer los elementos de testing para crear componentes sustentables
-* Mejorar tus habilidades como desarrollador Java en la creación de aplicaciones Java empresariales
+* Conocer los elementos de acceso a datos con Spring
+* Simplificar el uso de JDBC con Spring
+* Integrar un ORM(Hibernate) al contenedor de Spring
+* Profundizar en el manejo de transacciones
+* Conocer las herramientas para refactorizar una base de datos
+* Crear una capa de persistencia sustentable para ser llamada desde cualquier componente
+* Fomentar las buenas prácticas en el manejo de una fuente de datos relacional
 
 == Consideraciones
 
