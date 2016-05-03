@@ -73,8 +73,8 @@ class UsingJDBCForSimpleQuery{
 
 Algunos aspectos importantes a considerar dentro del uso de JDBC y basados en el código anterior son:
 
-* La API de JDBC - Provee de acceso programático a datos relacionales desde el lenguaje Java. Con la APi se pueden ejecutar sentencias SQL, entregar resultados, y propagar cambios al DataSource suscrito.
-* El JDBC Driver Manager - La clase DriverManager define objetos los cuales pueden conectar aplicaciones Java a un driver JDBC. El DriverManager tiene tradicionalmente la columna vertebral de la arquitectura de JDBC.Es pequeño y simple. La extensión de paquetes estándar javax.naming y javax.sql permite usar un DataSource registrado en un servicio de nombrados JNDI para establecer una conexión con el DataSource.
+* La API de JDBC - Provee de acceso programático a datos relacionales desde el lenguaje Java. Con la API se pueden ejecutar sentencias SQL, entregar resultados, y propagar cambios al DataSource suscrito.
+* El JDBC Driver Manager - La clase DriverManager define objetos los cuales pueden conectar aplicaciones Java a un driver JDBC. El DriverManager tiene tradicionalmente la columna vertebral de la arquitectura de JDBC. Es pequeño y simple. La extensión de paquetes estándar javax.naming y javax.sql permite usar un DataSource registrado en un servicio de nombrados JNDI para establecer una conexión con el DataSource.
 
 TIP: En las aplicaciones empresariales la implementación de la lógica de negocio y el reflejo de los procesos en un software es mucho más importante que un problema de acceso a datos.
 
@@ -218,7 +218,7 @@ Si has escrito código con la API de JDBC sin Spring, entonces debés de conocer
 Algunos problemas comúnes que causan que se arroje `SQLException` son:
 
 * La aplicación no es capaz de conectarse a la base de datos.
-* El query que se esta ejecutando tiene errores en su sintacis.
+* El query que se esta ejecutando tiene errores en su sintaxis.
 * Las tablas y las columnas referidas en la búsqueda no existen.
 * Un intento fue hecho al insertar o actualizar valores que violan las restricciones de la base de datos.
 

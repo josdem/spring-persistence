@@ -6,7 +6,7 @@
 TIP: Un método de un template define el esqueleto de un proceso.
 El proceso por si mísmo es fijo, nunca cambia. Algunos pasos del proceso son fijos también, algunos pasos pasan cada vez que se ejecuta un proceso. En algunos puntos, el proceso delega el trabajo a una subclase para llenarlo con algunas implementaciones con detalles muy específicos, es decir, es la parte variable del proceso.
 
-En términos de software, un método de un template delega porciones específicas de una implementación del proceso a una interface. Diferentes implementaciones de esta interface definen implementaciones específicas de esta porción del proceso. Este es el mismo patrón que Spring aplica al acceso a datos. Sin importar la tecnología ciertos pasos del acceso a datos son requeridos. Por ejemplo, siempre necesitamos obtener una conexión al DataSource y liberar recursos cuando ha terminado, pero cada método de acceso a datos que escribimos es ligeramente doferente. Buscamos por diferentes objetos y actualizamos en diferentes maneras.
+En términos de software, un método de un template delega porciones específicas de una implementación del proceso a una interface. Diferentes implementaciones de esta interface definen implementaciones específicas de esta porción del proceso. Este es el mismo patrón que Spring aplica al acceso a datos. Sin importar la tecnología ciertos pasos del acceso a datos son requeridos. Por ejemplo, siempre necesitamos obtener una conexión al DataSource y liberar recursos cuando ha terminado, pero cada método de acceso a datos que escribimos es ligeramente diferente. Buscamos por diferentes objetos y actualizamos en diferentes maneras.
 
 Spring separa las partes fijas y las variables del proceso de acceso a datos en dos distintas clases: _templates_ y _callbacks_. Los templates administran la parte fija del proceso mientras que el código de acceso de datos personalizados se maneja en los _callbacks_.
 
@@ -244,7 +244,7 @@ public class UsingNamedJdbcTemplateTests {
 TIP: Aunque la clase `JdbcTemplate` es muy poderosa y podría usarse de forma independiente, te recomendamos ampliamente que la uses con el soporte a DAO's que ofrece Spring.
 
 ## El JdbcTemplate y los RowMappers
-La interfaz `RowMapper` es usada por el `JdbcTemplate` para mapear las filas de un `ResultSet` fila por fila. Las implementaciones de esta interfaz realizan el trabajo actual de mapear cada fila en un objeto resultado, pero no necesitan preocuparse acerca del manejo de excepiones. Todo lo que sea `SQLException` será cachao y manejado por `JdbcTemplate`.
+La interfaz `RowMapper` es usada por el `JdbcTemplate` para mapear las filas de un `ResultSet` fila por fila. Las implementaciones de esta interfaz realizan el trabajo actual de mapear cada fila en un objeto resultado, pero no necesitan preocuparse acerca del manejo de excepiones. Todo lo que sea `SQLException` será cachado y manejado por `JdbcTemplate`.
 
 Los RowMappers son típicamente _stateless_ y por lo tanto pueden reusarse, son ideales para implementar lógica de mapeo por fila en un solo lugar.
 
@@ -366,7 +366,7 @@ public class TaskDaoHibernate3Impl extends HibernateDaoSupport implements TaskDa
 }
 ----
 
-*TaskDaoJdbcImpl.javai*
+*TaskDaoJdbcImpl.java*
 
 [source,java]
 ----

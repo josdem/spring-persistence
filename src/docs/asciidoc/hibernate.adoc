@@ -48,7 +48,7 @@ image:images/full_cream.png[]
 
 ### API’s esenciales
 
-* SessionFactory (`org.hibernate.SessionFactory`) - Un objeto thread-safe, con cache de mapeos compilados para una sola base de datos.Opcionalmente mantiene un cache de segundo nivel de datos que es reusable entre transacciones en un proceso o en un cluster.
+* SessionFactory (`org.hibernate.SessionFactory`) - Un objeto thread-safe, con cache de mapeos compilados para una sola base de datos. Opcionalmente mantiene un cache de segundo nivel de datos que es reusable entre transacciones en un proceso o en un cluster.
 * Session (`org.hibernate.Session`) - Un objeto único, de vida corta representando una conversación entre la aplicación y el almacén persistente. Rodea una conexión JDBC dle tipo `java.sql.Connection`. Fábrica de objetos `Transaction`. Mantiene un caché de primer nivel de objetos y colecciones persistentes; este caché es usado cuando se navega el grafo de objetos.
 * Objetos y colecciones persistentes - Objetos que contienen el estado persistente y las funciones de negocio. Pueden ser JavaBeans/POJO ordinarios. Están asociados con una y sólo una `Session`, una vez que este objeto se cierra los objetos son desasociados detached y libres de usarse en cualquier capa de la aplicación.
 * Objetos y colecciones transitorios - Instancias de clases persitentes que no están actualmente asociadas con un objeto Session. Quizá han sido instanciadas por la aplicación pero no han sido persistidas, o quizá han sido instanciadas por un objeto `Session` que ya ha sido cerrado.
@@ -627,4 +627,4 @@ public class HibernateConfiguration {
 
 TIP: Recuerda que cualquier configuración en XML la puedes realizar con anotaciones o con JavaConfig.
 
-NOTE: ¡Es tu turno! Implementa los DAO's faltantes, revisa los mapeos de Hibernate pues están icnompletos.
+NOTE: ¡Es tu turno! Implementa los DAO's faltantes, revisa los mapeos de Hibernate pues están incompletos.
