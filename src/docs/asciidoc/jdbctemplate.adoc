@@ -46,7 +46,7 @@ La clase `JdbcTemplate` ejecuta consultas, sentencias de actualización y llamad
 
 TIP: Lo único que necesita un `JdbcTemplate` es un `DataSource`, y tiene varios métodos de conveniencia que ayudan a realizar operaciones de base de datos de una forma muy simple. El DataSource siempre debe ser configurado como un bean en el contenedor de Spring.
 
-*JdbcTemplateConfig.javai*
+*JdbcTemplateConfig.java*
 [source,java]
 ----
 package com.makingdevs.practica2;

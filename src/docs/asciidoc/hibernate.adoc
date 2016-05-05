@@ -8,7 +8,7 @@ Aunque JDBC podría ser muy útil y elegante, podríamos considerar el uso de fr
 
 TIP: El uso de un ORM puede ahorrarte muchas líenas de código y horas de desarrollo.
 
-Spring soporta la integración con link:http://www.hibernate.org/[Hibernate], link:http://www.oracle.com/technetwork/java/javaee/tech/persistence-jsp-140049.html[Java Persistence API(JPA)] y link:http://www.oracle.com/technetwork/java/index-jsp-135919.html[Java Data Objects(JDO)] para la administración de recursos, la implementación de los DAO’s, y las estrategias de transacciones. Puedes configurar todos los elementos soportados por el ORM a través de la Inyección de Dependencias. El estilo de integración recomendado es desarrollar lps DAO’s planos con Hibernate, JPA y/ JDO, el estilo de usar los templates de Spring ya no es tan recomendado.
+Spring soporta la integración con link:http://www.hibernate.org/[Hibernate], link:http://www.oracle.com/technetwork/java/javaee/tech/persistence-jsp-140049.html[Java Persistence API(JPA)] y link:http://www.oracle.com/technetwork/java/index-jsp-135919.html[Java Data Objects(JDO)] para la administración de recursos, la implementación de los DAO’s, y las estrategias de transacciones. Puedes configurar todos los elementos soportados por el ORM a través de la Inyección de Dependencias. El estilo de integración recomendado es desarrollar los DAO’s planos con Hibernate, JPA y/ JDO, el estilo de usar los templates de Spring ya no es tan recomendado.
 
 Adicionalmente, Spring agrega mejoras significativas en la capa de persistencia con el ORM de nuestra elección al momento de crear aplicaciones con acceso a datos. Los beneficios de usar Spring al crear los DAO’s con un ORM son:
 
@@ -258,121 +258,6 @@ public abstract class GenericDaoHibernateImpl<T, PK extends Serializable> implem
 }
 ----
 
-*HibernateAppCtxTests.java*
-[source,java]
-----
-package com.makingdevs.practica6;
-
-import static org.springframework.util.Assert.notNull;
-
-import org.hibernate.SessionFactory;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "HibernateAppCtx.xml", "../practica1/DataSourceWithNamespace.xml" })
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class HibernateAppCtxTests {
-
-  @Autowired
-  SessionFactory sessionFactory;
-
-  @Test
-  public void test0SessionFactory() {
-    notNull(sessionFactory);
-  }
-
-  @Test
-  public void test1Session() {
-    org.springframework.util.Assert.notNull(sessionFactory.openSession());
-  }
-
-}
-----
-
-### Implementación de DAO’s con Hibernate
-
-*GenericDaoHibernateImpl.java*
-[source,java]
-----
-package com.makingdevs.practica7;
-
-import java.io.Serializable;
-import java.lang.reflect.ParameterizedType;
-import java.util.List;
-
-import org.hibernate.SessionFactory;
-import org.hibernate.criterion.Projections;
-
-import com.makingdevs.dao.GenericDao;
-
-public abstract class GenericDaoHibernateImpl<T, PK extends Serializable> implements GenericDao<T, PK> {
-
-  private SessionFactory sessionFactory;
-
-  private Class<T> type = null;
-
-  public SessionFactory getSessionFactory() {
-    return sessionFactory;
-  }
-
-  public void setSessionFactory(SessionFactory sessionFactory) {
-    this.sessionFactory = sessionFactory;
-  }
-
-  @Override
-  public void create(T newInstance) {
-    sessionFactory.getCurrentSession().save(newInstance);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public T read(PK id) {
-    return (T) sessionFactory.getCurrentSession().get(getType(), id);
-  }
-
-  @Override
-  public void update(T transientObject) {
-    sessionFactory.getCurrentSession().update(transientObject);
-  }
-
-  @Override
-  public void delete(T persistentObject) {
-    sessionFactory.getCurrentSession().delete(persistentObject);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public List<T> findAll() {
-    return sessionFactory.getCurrentSession().createCriteria(getType()).list();
-  }
-
-  @Override
-  public int countAll() {
-    return (Integer) sessionFactory.getCurrentSession().createCriteria(getType()).setProjection(Projections.rowCount())
-        .uniqueResult();
-  }
-
-  @SuppressWarnings("unchecked")
-  public Class<T> getType() {
-    if (type == null) {
-      Class<?> clazz = getClass();
-      while (!(clazz.getGenericSuperclass() instanceof ParameterizedType)) {
-        clazz = clazz.getSuperclass();
-      }
-      type = (Class<T>) ((ParameterizedType) clazz.getGenericSuperclass()).getActualTypeArguments()[0];
-    }
-    return type;
-  }
-
-}
-----
-
 *HibernateAppCtx.xml*
 [source,xml]
 ----
@@ -439,7 +324,7 @@ public abstract class GenericDaoHibernateImpl<T, PK extends Serializable> implem
 </beans>
 ----
 
-TIP: `PersistenceExceptionTranslationPostProcessor` es un post procesador de beans el cual agrega un advisor a cualquier bean anotado con @Repository, de tal forma que, cualquier excepción de cualqueir plataforma de acceso a datos es cachada y relanzada por una excepción No Checada de Spring.
+TIP: `PersistenceExceptionTranslationPostProcessor` es un post procesador de beans el cual agrega un advisor a cualquier bean anotado con @Repository, de tal forma que, cualquier excepción de cualquier plataforma de acceso a datos es cachada y relanzada por una excepción No Checada de Spring.
 
 *ProjectDaoHibernateImpl.java*
 [source,java]

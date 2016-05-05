@@ -32,7 +32,7 @@ En Java EE, solo tenemos dos elecciones para la administración de transacciones
 
 *Transacciones globales*
 
-Habilitan trabajar con múltiples recursos transaccionales, tipicamente bases de datos relaciones y colas de mensajes. Los servidores de aplicaciones administran las transacciones a través de JTA. Siin embargo, una transacción manejada por JTA normalmente viene de una fuente en un JNDI, lo cual significa el uso de JNDI adicional al de JTA.
+Habilitan trabajar con múltiples recursos transaccionales, tipicamente bases de datos relaciones y colas de mensajes. Los servidores de aplicaciones administran las transacciones a través de JTA. Sin embargo, una transacción manejada por JTA normalmente viene de una fuente en un JNDI, lo cual significa el uso de JNDI adicional al de JTA.
 
 *Transacciones locales*
 
@@ -863,7 +863,7 @@ public class AllAnotherDaoTests { }
 ----
 
 ### Administración de transacciones en pruebas
-En el frameworks de pruebas de Spring, las transacciones son manejadas por `TransactionalTestExecutionListener`, el cual es configurado por defecto aunque no se lo indiquemos. Y para habilitar el soporte de transaccciones debemos proveer de un `PlatformTransactionManager` en el contexto de la aplicación en la semántica de `@ContextCinfiguration`. Adicionalmente, debemos declarar con `@Transactional` las clases y métodos que deseamos sean transaccionales.
+En el frameworks de pruebas de Spring, las transacciones son manejadas por `TransactionalTestExecutionListener`, el cual es configurado por defecto aunque no se lo indiquemos. Y para habilitar el soporte de transaccciones debemos proveer de un `PlatformTransactionManager` en el contexto de la aplicación en la semántica de `@ContextConfiguration`. Adicionalmente, debemos declarar con `@Transactional` las clases y métodos que deseamos sean transaccionales.
 
 Si las transacciones no están habilitados para toda la clase de prueba, podemos anotar los métodos explícitamente con `@Transactional`. Para controlar si una operación debe hacer commit para un método de prueba en particular, podemos utilizar la anotación `@Rollback` para sobreescribir la configuración del rollback establecido por la transacción de forma general
 

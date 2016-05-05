@@ -14,7 +14,7 @@ Una aspecto a considerar es que un refactor de base de datos es conceptualmente 
 * Para soportar el desarrollo que evoluciona el software
 
 *¿Por qué es difícil el refactor de base de datos?*
-Los esquemas relacionales de base de datos están potencialmente atadois a una amplia variedad de cosas:
+Los esquemas relacionales de base de datos están potencialmente atados a una amplia variedad de cosas:
 
 * El código fuente de la aplicación
 * Otro código fuente de la aplicación

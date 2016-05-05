@@ -1,5 +1,5 @@
 # Conceptos esenciales de acceso a datos con Spring
-En las recientes décadas, una filosofía se ha desarrollado como una tendencia de diseño en la comunidad de desarrollo orientado a objetos. El diseño orientado a al dominio con dos premisas:
+En las recientes décadas, una filosofía se ha desarrollado como una tendencia de diseño en la comunidad de desarrollo orientado a objetos. El diseño orientado al dominio con dos premisas:
 
 * Para la mayoría de los proyectos de software, el enfoque principal debería ser el dominio y la lógica que yace en él.
 * Diseños de dominio complejos deberían estar basados sobre un modelo.
@@ -176,7 +176,7 @@ public interface ProjectDao extends GenericDao<Project, Long> {
 }
 ----
 
-*GenericDao.java*
+*UserStoryDao.java*
 [source,java]
 ----
 package com.makingdevs.dao;
@@ -193,7 +193,7 @@ public interface UserStoryDao extends GenericDao<UserStory, Long> {
 }
 ----
 
-*GenericDao.java*
+*TaskDao.java*
 [source,java]
 ----
 package com.makingdevs.dao;
