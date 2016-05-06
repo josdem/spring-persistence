@@ -767,7 +767,7 @@ image:images/requires_new.png[]
 image:images/supports.png[]
 
 ### MANDATORY
-* Debe existir una transacción, si no existe falla y arroja excpeción
+* Debe existir una transacción, si no existe falla y arroja excepeción
 
 image:images/mandatory.png[]
 
